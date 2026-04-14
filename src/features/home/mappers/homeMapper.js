@@ -70,6 +70,7 @@ function mapCard(rawItem) {
     title,
     slug: inferredSlug,
     overview: item.overview ?? "No synopsis available.",
+    tagline: item.tagline ?? null,
     posterUrl: buildImageUrl(posterPath, "w500"),
     backdropUrl: buildImageUrl(backdropPath, "w1280"),
     logoUrl: buildImageUrl(item.logoPath, "w500"),

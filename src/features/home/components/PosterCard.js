@@ -1,9 +1,16 @@
+"use client";
+
+import Link from "next/link";
+
 export function PosterCard({ item }) {
   const qualityBadge = item.contentType === "movie" ? "WEB-DL" : "TV";
+  const type = item.contentType === "movie" ? "movie" : "show";
+  const detailPath = `/movie/${item.id}-${type}`;
 
   return (
-    <article className="group w-38 shrink-0 space-y-2 sm:w-43">
-      <div className="relative aspect-2/3 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 transition duration-200 group-hover:scale-[1.03] group-hover:border-zinc-500/70 group-hover:shadow-[0_14px_28px_rgba(0,0,0,0.45)]">
+    <Link href={detailPath}>
+      <article className="group w-38 shrink-0 space-y-2 cursor-pointer sm:w-43">
+        <div className="relative aspect-2/3 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 transition duration-200 group-hover:scale-[1.03] group-hover:border-zinc-500/70 group-hover:shadow-[0_14px_28px_rgba(0,0,0,0.45)]">
         <div
           className="absolute inset-0 bg-linear-to-br from-zinc-700/25 via-zinc-900/40 to-black/90"
           style={
@@ -44,5 +51,6 @@ export function PosterCard({ item }) {
         </p>
       </div>
     </article>
+    </Link>
   );
 }

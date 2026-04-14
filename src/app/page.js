@@ -34,7 +34,7 @@ export default async function Home() {
       <main>
         <HeroSection items={featuredItems} />
 
-        <section className="mx-auto flex w-full max-w-7xl flex-col gap-7 px-4 pb-14 sm:px-8">
+        <section className="flex w-full flex-col gap-7 px-6 pb-14 sm:px-12 lg:px-16">
           {displayRows.length > 0 ? (
             displayRows.map((row) => <ContentRow key={row.id} row={row} />)
           ) : (
