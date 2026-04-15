@@ -1,4 +1,3 @@
-import { HomeNavbar } from "@/features/home/components/HomeNavbar";
 import { HeroSection } from "@/features/home/components/HeroSection";
 import { ContentRow } from "@/features/home/components/ContentRow";
 import { EmptyState } from "@/features/home/components/EmptyState";
@@ -29,8 +28,6 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-zinc-100">
-      <HomeNavbar />
-
       <main>
         <HeroSection items={featuredItems} />
 

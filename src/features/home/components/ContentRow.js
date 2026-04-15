@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { PosterCard } from "@/features/home/components/PosterCard";
+import { SeriesCard } from "@/features/home/components/SeriesCard";
 
 export function ContentRow({ row }) {
   const railRef = useRef(null);
@@ -13,6 +14,17 @@ export function ContentRow({ row }) {
       behavior: "smooth",
     });
   }
+
+  // Check if this row contains series content
+  // Method 1: Check if all items are marked as TV series
+  const allItemsAreSeries = row.items.length > 0 && row.items.every((item) => item.contentType === "tv_series");
+  
+  // Method 2: Check if row title/type suggests it's a series section (more comprehensive pattern)
+  const seriesKeywords = /\b(tv|series|show|shows|tvshow|rated tv)\b/i;
+  const titleSuggestesSeries = row.title && seriesKeywords.test(row.title);
+  const typeSuggestesSeries = row.type === "series" || row.type === "tv";
+  
+  const isSeriesRow = allItemsAreSeries || titleSuggestesSeries || typeSuggestesSeries;
 
   return (
     <div className="space-y-3">
@@ -46,9 +58,10 @@ export function ContentRow({ row }) {
           ref={railRef}
           className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {row.items.map((item) => (
-            <PosterCard key={item.id} item={item} />
-          ))}
+          {row.items.map((item) => {
+            const CardComponent = isSeriesRow ? SeriesCard : PosterCard;
+            return <CardComponent key={item.id} item={item} />;
+          })}
         </div>
       </div>
     </div>

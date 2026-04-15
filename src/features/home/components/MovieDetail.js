@@ -24,24 +24,17 @@ export function MovieDetail({ movie }) {
           onClose={() => setShowPlayer(false)}
         />
       )}
-        {/* Header with back button */}
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center gap-4 bg-linear-to-b from-black/80 to-transparent px-6 py-4">
-        <button
-          onClick={() => router.back()}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 transition"
-        >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Backdrop Image */}
+      {/* Backdrop Image - Full screen with navbar overlayed */}
       <div className="relative h-96 w-full bg-zinc-900 sm:h-125">
         {movie.backdropUrl && (
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url('${movie.backdropUrl}')` }}
+          <Image
+            src={movie.backdropUrl}
+            alt={movie.title}
+            fill
+            className="object-cover object-center"
+            priority
+            loading="eager"
+            sizes="100vw"
           />
         )}
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#0a0a0f]/50 to-[#0a0a0f]" />
@@ -55,6 +48,8 @@ export function MovieDetail({ movie }) {
               width={500}
               height={200}
               className="h-20 sm:h-32 object-contain drop-shadow-2xl"
+              priority
+              loading="eager"
             />
           </div>
         )}

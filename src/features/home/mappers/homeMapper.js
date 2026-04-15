@@ -60,7 +60,7 @@ function mapCard(rawItem) {
   const networks = mapNetworks(item);
   const contentType =
     item.contentType ??
-    (item.episodeNumber ? "episode" : item.runtime ? "movie" : "tv_series");
+    (item.episodeNumber ? "episode" : item.numberOfSeasons ? "tv_series" : item.runtime ? "movie" : "tv_series");
   const posterPath = item.posterPath ?? item.stillPath ?? item.series?.posterPath;
   const backdropPath = item.backdropPath ?? item.series?.backdropPath ?? null;
   const inferredSlug = item.slug ?? item.series?.slug ?? "#";

@@ -39,52 +39,74 @@ export function HeroSection({ items = [] }) {
             className={`absolute inset-0 transition-opacity duration-1000 ${
               index === activeIndex ? "opacity-100" : "opacity-0"
             }`}
-            style={
-              slide.backdropUrl
-                ? {
-                    backgroundImage: `url('${slide.backdropUrl}')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center 20%",
-                  }
-                : undefined
-            }
-          />
+          >
+            {slide.backdropUrl && (
+              <Image
+                src={slide.backdropUrl}
+                alt={slide.title}
+                fill
+                className="object-cover object-center"
+                style={{ objectPosition: "center 20%" }}
+                priority={index === activeIndex}
+                loading={index === activeIndex ? "eager" : "lazy"}
+                sizes="100vw"
+              />
+            )}
+          </div>
         ))}
       </div>
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(92deg,rgba(5,6,10,0.86)_8%,rgba(5,6,10,0.44)_46%,rgba(5,6,10,0.84)_96%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(6,7,11,1)_0%,rgba(6,7,11,0.22)_35%,rgba(6,7,11,0)_65%)]" />
 
-      <div className="relative flex w-full flex-col justify-end gap-4 pt-16 sm:pt-20 max-w-2xl">
+      <div className="relative flex w-full flex-col justify-end gap-4 pt-60 sm:pt-20 max-w-2xl">
         <p className="inline-block w-fit rounded bg-red-600 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
           {item.contentType === "movie" ? "Movie" : "TV Series"}
         </p>
 
         {/* Logo or Title */}
-        <div className="h-32 flex items-start">
+        <div className="h-20 flex items-start">
           {item.logoUrl ? (
             <Image
               src={item.logoUrl}
               alt={item.title}
-              width={400}
-              height={150}
-              className="h-auto w-auto max-w-sm object-contain"
+              width={300}
+              height={100}
+              className="h-16 w-auto object-contain"
               priority
+              loading="eager"
+              sizes="(max-width: 768px) 200px, 300px"
             />
           ) : (
-            <h1 className="max-w-3xl text-5xl font-light leading-[0.95] text-white sm:text-7xl">
+            <h1 className="max-w-3xl text-4xl font-light leading-[0.95] text-white sm:text-6xl">
               {item.title}
             </h1>
           )}
         </div>
 
         {/* Tagline */}
-        <p className="italic text-zinc-300 text-sm sm:text-base h-6 line-clamp-1">
-          {item.tagline || ""}
-        </p>
+        {item.tagline && (
+          <p className="italic text-zinc-300 text-sm sm:text-base line-clamp-1 mb-2">
+            {item.tagline}
+          </p>
+        )}
+
+        {/* Genres */}
+        {item.genres && item.genres.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {item.genres.slice(0, 4).map((genre) => (
+              <span
+                key={genre}
+                className="inline-block rounded-full border border-zinc-600 px-3 py-1 text-xs font-medium text-zinc-300 hover:border-zinc-400 transition"
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Metadata */}
-        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-200 sm:text-sm h-6">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-200 sm:text-sm">
           <span className="font-bold text-yellow-300">★ {item.rating ?? "8.0"}</span>
           {item.year ? <span>•</span> : null}
           {item.year ? <span>{item.year}</span> : null}
@@ -94,10 +116,10 @@ export function HeroSection({ items = [] }) {
               <span>{`${item.seasons} Season${item.seasons > 1 ? "s" : ""}`}</span>
             </>
           ) : null}
-          {item.label ? (
+          {item.runtime ? (
             <>
               <span>•</span>
-              <span>{item.label}</span>
+              <span>{`${item.runtime} min`}</span>
             </>
           ) : null}
           {item.status ? (

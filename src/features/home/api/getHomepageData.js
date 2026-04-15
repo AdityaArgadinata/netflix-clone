@@ -78,10 +78,14 @@ async function fetchHomepagePayload() {
   // Fetch logos for all trending items to display in hero carousel and rows
   const allTrendingMovies = trendingMovies.results.slice(0, 10);
   const allTrendingShows = trendingShows.results.slice(0, 10);
+  const allTopRatedMovies = topRatedMovies.results.slice(0, 10);
+  const allTopRatedShows = topRatedShows.results.slice(0, 10);
   
   const itemsToFetchLogos = [
     ...allTrendingMovies.map(m => ({ id: m.id, isTV: false })),
     ...allTrendingShows.map(s => ({ id: s.id, isTV: true })),
+    ...allTopRatedMovies.map(m => ({ id: m.id, isTV: false })),
+    ...allTopRatedShows.map(s => ({ id: s.id, isTV: true })),
   ];
 
   const logos = await Promise.all(
@@ -167,9 +171,16 @@ async function fetchHomepagePayload() {
         title: "Top Rated Movies",
         slug: "top-rated-movies",
         sortOrder: 3,
-        data: topRatedMovies.results.slice(0, 10).map((movie) => ({
-          content: formatTMDBMovie(movie),
-        })),
+        data: allTopRatedMovies.map((movie) => {
+          const formatted = formatTMDBMovie(movie);
+          const logo = logoMap.get(movie.id);
+          return {
+            content: {
+              ...formatted,
+              logoPath: logo,
+            },
+          };
+        }),
       },
       {
         id: "top-rated-shows",
@@ -177,9 +188,16 @@ async function fetchHomepagePayload() {
         title: "Top Rated TV Shows",
         slug: "top-rated-shows",
         sortOrder: 4,
-        data: topRatedShows.results.slice(0, 10).map((show) => ({
-          content: formatTMDBShow(show),
-        })),
+        data: allTopRatedShows.map((show) => {
+          const formatted = formatTMDBShow(show);
+          const logo = logoMap.get(show.id);
+          return {
+            content: {
+              ...formatted,
+              logoPath: logo,
+            },
+          };
+        }),
       },
     ],
   };
