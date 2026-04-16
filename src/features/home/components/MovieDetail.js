@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
@@ -12,6 +13,9 @@ export function MovieDetail({ movie }) {
   if (!movie) return null;
 
   const year = movie.releaseDate ? movie.releaseDate.split("-")[0] : "N/A";
+  const isTVSeries = movie.contentType === "tv_series";
+  const buildEpisodeHref = (episode) =>
+    `/movie/${movie.id}-show/season/${episode.seasonNumber}/episode/${episode.episodeNumber}`;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-zinc-100">
@@ -158,14 +162,15 @@ export function MovieDetail({ movie }) {
         </div>
 
         {/* Episodes for TV Series - Before Cast */}
-        {movie.contentType === "tv_series" && movie.episodes && movie.episodes.length > 0 && (
+        {isTVSeries && movie.episodes && movie.episodes.length > 0 && (
           <div className="mb-16 border-t border-zinc-800 pt-12">
             <h2 className="text-2xl font-bold text-white mb-6">Episodes (Season 1)</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {movie.episodes.map((episode) => (
-                <div
+                <Link
                   key={episode.id}
-                  className="group cursor-pointer rounded-lg overflow-hidden bg-zinc-900 hover:shadow-lg transition duration-200"
+                  href={buildEpisodeHref(episode)}
+                  className="group block cursor-pointer overflow-hidden rounded-lg bg-zinc-900 transition duration-200 hover:shadow-lg"
                 >
                   <div className="relative aspect-video overflow-hidden bg-zinc-800">
                     {episode.stillUrl ? (
@@ -200,7 +205,7 @@ export function MovieDetail({ movie }) {
                       )}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef } from "react";
 import { PosterCard } from "@/features/home/components/PosterCard";
 import { SeriesCard } from "@/features/home/components/SeriesCard";
@@ -30,9 +31,12 @@ export function ContentRow({ row }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{row.title}</h2>
-        <a className="text-sm text-zinc-400 transition hover:text-zinc-200" href="#">
+        <Link
+          className="text-sm text-zinc-400 transition hover:text-zinc-200"
+          href={`/search?q=${encodeURIComponent(row.title)}`}
+        >
           View All
-        </a>
+        </Link>
       </div>
 
       <div className="relative">

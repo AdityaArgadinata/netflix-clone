@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, onClose }) {
-  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(0);
-
   // Dynamically import players based on type
   const players = useMemo(() => {
     if (isTV) {
@@ -15,6 +13,10 @@ export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, on
       return getMoviePlayers(movieId);
     }
   }, [movieId, isTV, season, episode]);
+  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(() => {
+    const vidKingIndex = players.findIndex((player) => player.title === "VidKing");
+    return vidKingIndex >= 0 ? vidKingIndex : 0;
+  });
 
   const currentPlayer = players[selectedPlayerIndex];
 

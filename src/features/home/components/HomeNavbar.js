@@ -36,14 +36,14 @@ export function HomeNavbar() {
   }, [isMobileMenuOpen]);
 
   const navItems = [
-    "Home",
-    "Movies",
-    "TV Series",
-    "Leaderboard",
-    "Genres",
-    "Country",
-    "Year",
-    "Network",
+    { label: "Home", href: "/" },
+    { label: "Movies", href: "/movies" },
+    { label: "TV Series", href: "/tv-series" },
+    { label: "Leaderboard", href: "/leaderboard" },
+    { label: "Genres", href: "/genres" },
+    { label: "Country", href: "/country" },
+    { label: "Year", href: "/year" },
+    { label: "Network", href: "/network" },
   ];
 
   return (
@@ -65,13 +65,13 @@ export function HomeNavbar() {
           {/* Nav items - hidden on mobile */}
           <ul className="hidden items-center gap-4 text-sm text-zinc-300 lg:flex flex-1 ml-8">
             {navItems.map((item) => (
-              <li key={item}>
-                <a
+              <li key={item.label}>
+                <Link
+                  href={item.href}
                   className="relative transition-colors hover:text-white after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-red-600 after:transition-transform hover:after:scale-x-100"
-                  href={item === "Home" ? "/" : "#"}
                 >
-                  {item}
-                </a>
+                  {item.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -137,14 +137,14 @@ export function HomeNavbar() {
           {/* Nav Items */}
           <ul className="space-y-2 mb-4 pb-4 border-b border-zinc-800">
             {navItems.map((item) => (
-              <li key={item}>
-                <a
+              <li key={item.label}>
+                <Link
+                  href={item.href}
                   className="block px-3 py-2 rounded text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 transition"
-                  href={item === "Home" ? "/" : "#"}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {item}
-                </a>
+                  {item.label}
+                </Link>
               </li>
             ))}
           </ul>
