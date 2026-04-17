@@ -4,6 +4,54 @@ import { ContentRow } from "@/features/home/components/ContentRow";
 import { EmptyState } from "@/features/home/components/EmptyState";
 import { getHomepageData } from "@/features/home/api/getHomepageData";
 
+const unique = (values) => [...new Set(values.filter(Boolean))];
+
+export async function generateMetadata() {
+  const { featured, rows } = await getHomepageData();
+  const allItems = rows.flatMap((row) => row.items ?? []);
+
+  const topTitles = unique(allItems.map((item) => item.title)).slice(0, 15);
+  const topGenres = unique(allItems.flatMap((item) => item.genres ?? [])).slice(0, 12);
+  const topYears = unique(
+    allItems
+      .map((item) => item.year ?? item.releaseDate ?? null)
+      .filter(Boolean)
+      .map((value) => String(value).slice(0, 4))
+  ).slice(0, 8);
+
+  const featureName = featured?.title || topTitles[0] || "trending movies and TV series";
+  const description = `Stream ${featureName} and explore updated collections of movies, TV series, episodes, genres, and top-rated titles in one catalog.`;
+
+  return {
+    title: "Watch Movies and TV Series Online",
+    description,
+    keywords: unique([
+      "watch movies online",
+      "watch TV series",
+      "stream episodes",
+      "trending movies",
+      "top rated TV shows",
+      ...topGenres,
+      ...topYears,
+      ...topTitles,
+    ]),
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      title: "Watch Movies and TV Series Online",
+      description,
+      url: "/",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Watch Movies and TV Series Online",
+      description,
+    },
+  };
+}
+
 export default async function Home() {
   const { featured, rows } = await getHomepageData();
   const featuredRow = rows.find((row) => row.type === "featured");

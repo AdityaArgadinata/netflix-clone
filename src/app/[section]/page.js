@@ -15,9 +15,29 @@ const SECTION_TITLES = {
 export async function generateMetadata({ params }) {
   const { section } = await params;
   const title = SECTION_TITLES[section];
+  const sectionLabel = title || "Catalog";
+  const normalizedSection = sectionLabel.toLowerCase();
 
   return {
-    title: title ? `${title} - PawPaw Streaming` : "PawPaw Streaming",
+    title: title || "Catalog",
+    description: `Browse ${normalizedSection} collections, discover related titles, and open complete movie and TV detail pages with streaming links.`,
+    keywords: [
+      `${normalizedSection} movies`,
+      `${normalizedSection} TV series`,
+      `${normalizedSection} streaming`,
+      `${normalizedSection} catalog`,
+      `watch ${normalizedSection}`,
+      "PawPaw Streaming",
+    ],
+    alternates: {
+      canonical: title ? `/${section}` : "/",
+    },
+    openGraph: {
+      title: `${sectionLabel} | PawPaw Streaming`,
+      description: `Explore ${normalizedSection} and discover movies and TV series in one page.`,
+      url: title ? `/${section}` : "/",
+      type: "website",
+    },
   };
 }
 
