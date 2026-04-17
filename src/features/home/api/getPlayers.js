@@ -26,7 +26,7 @@ export const getMoviePlayers = (id, startAt) => {
     },
     {
       title: "VidKing",
-      source: `https://www.vidking.net/embed/movie/${id}?color=e50914&autoPlay=true`,
+      source: `https://www.vidking.net/embed/movie/${id}?color=e50914&autoPlay=false`,
       recommended: true,
       fast: true,
       resumable: true,
