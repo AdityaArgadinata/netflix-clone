@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, onClose }) {
   // Dynamically import players based on type
@@ -20,6 +20,19 @@ export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, on
   const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false);
 
   const currentPlayer = players[selectedPlayerIndex];
+
+  // Prevent popup windows and external navigation
+  useEffect(() => {
+    const originalWindowOpen = window.open;
+    window.open = function(...args) {
+      console.log("Popup blocked:", args);
+      return null;
+    };
+
+    return () => {
+      window.open = originalWindowOpen;
+    };
+  }, []);
 
   if (!currentPlayer) return null;
 
@@ -52,6 +65,7 @@ export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, on
             className="w-full h-full rounded-lg"
             title="Video Player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-fullscreen"
           />
         </div>
       </div>
