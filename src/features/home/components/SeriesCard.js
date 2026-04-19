@@ -5,6 +5,7 @@ import Image from "next/image";
 
 export function SeriesCard({ item }) {
   const detailPath = `/movie/${item.id}-show`;
+  const roundedRating = Number.isFinite(Number(item.rating)) ? Math.round(Number(item.rating)) : 8;
 
   return (
     <Link href={detailPath}>
@@ -61,7 +62,7 @@ export function SeriesCard({ item }) {
 
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-1 text-[10px] sm:text-xs text-zinc-200 mb-1.5">
-            <span className="font-bold text-yellow-300">★ {item.rating ?? "8.0"}</span>
+            <span className="font-bold text-yellow-300">★ {roundedRating}</span>
             {item.seasons && (
               <>
                 <span>•</span>

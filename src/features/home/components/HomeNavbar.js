@@ -48,18 +48,18 @@ export function HomeNavbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-30 px-4 py-3 transition-colors duration-300 sm:px-8 ${
+      className={`fixed inset-x-0 top-0 z-30 py-3 transition-colors duration-300 ${
         isScrolled
           ? "bg-black/95"
           : "bg-linear-to-b from-black/80 to-transparent"
       }`}
     >
-      <nav className="mx-auto w-full max-w-7xl">
+      <nav className="page-container">
         {/* Single Row Layout */}
         <div className="flex items-center justify-between gap-4 py-3">
           {/* Logo */}
           <Link className="text-xl font-extrabold tracking-wide text-red-600 sm:text-2xl" href="/">
-            PAWPAW
+            FLIXAROO
           </Link>
 
           {/* Nav items - hidden on mobile */}

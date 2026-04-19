@@ -1,6 +1,6 @@
 import { getHomepageData } from "@/features/home/api/getHomepageData";
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "http://localhost:3000").replace(
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://flixaroo.com").replace(
   /\/$/,
   ""
 );

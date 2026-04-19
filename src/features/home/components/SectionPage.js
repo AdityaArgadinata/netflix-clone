@@ -6,31 +6,31 @@ import { ContentRow } from "@/features/home/components/ContentRow";
 const SECTION_CONFIG = {
   movies: {
     title: "Movies",
-    subtitle: "Film terbaru, populer, dan paling banyak ditonton dalam satu rak cinematic.",
+    subtitle: "The latest, most popular, and most watched films in one cinematic shelf.",
   },
   "tv-series": {
     title: "TV Series",
-    subtitle: "Serial panjang, drama besar, dan koleksi episode yang bisa dijelajahi terus.",
+    subtitle: "Long-running series, major dramas, and episode collections made for nonstop discovery.",
   },
   leaderboard: {
     title: "Leaderboard",
-    subtitle: "Papan peringkat konten dengan rating paling tinggi dan paling layak masuk watchlist.",
+    subtitle: "A ranking board of top-rated titles that are most worth adding to your watchlist.",
   },
   genres: {
     title: "Genres",
-    subtitle: "Jelajahi katalog lewat genre yang paling sering muncul di koleksi PawPaw.",
+    subtitle: "Explore the catalog through genres that appear most across the Flixaroo collection.",
   },
   country: {
     title: "Country",
-    subtitle: "Koleksi yang dipetakan berdasarkan negara produksi dan asal kontennya.",
+    subtitle: "Collections organized by production country and content origin.",
   },
   year: {
     title: "Year",
-    subtitle: "Konten yang dikelompokkan berdasarkan tahun rilis agar browsing terasa cepat.",
+    subtitle: "Content grouped by release year for faster browsing.",
   },
   network: {
     title: "Network",
-    subtitle: "Rangkaian serial dan judul yang berhubungan dengan network populer.",
+    subtitle: "Series and titles grouped around popular networks.",
   },
 };
 
@@ -106,6 +106,21 @@ function buildMetaChips(items) {
   ];
 }
 
+function getUniqueGenres(items) {
+  return [...new Set(items.flatMap((item) => item.genres ?? []).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function getUniqueCountries(items) {
+  return [...new Set(items.map((item) => item.country).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function getUniqueYears(items) {
+  return [...new Set(items.map(getItemYear).filter(Boolean))]
+    .sort((a, b) => Number(b) - Number(a));
+}
+
 export function SectionPage({ section, featured, rows }) {
   const config = SECTION_CONFIG[section] ?? SECTION_CONFIG.movies;
   const displayRows =
@@ -120,6 +135,96 @@ export function SectionPage({ section, featured, rows }) {
   const catalogItems = getUniqueItems(displayRows);
   const heroItems = getHeroItems(section, featured, displayRows);
   const metaChips = buildMetaChips(catalogItems);
+  const genreMenuItems = getUniqueGenres(catalogItems);
+  const countryMenuItems = getUniqueCountries(catalogItems);
+  const yearMenuItems = getUniqueYears(catalogItems);
+
+  if (section === "genres") {
+    return (
+      <div className="min-h-screen bg-[#050608] pt-28 text-zinc-100 sm:pt-32">
+        <main className="page-container pb-16">
+          <h1 className="text-4xl font-semibold text-white">Genres</h1>
+
+          {genreMenuItems.length > 0 ? (
+            <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {genreMenuItems.map((genre) => (
+                <Link
+                  key={genre}
+                  href={`/search?q=${encodeURIComponent(genre)}`}
+                  className="group flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-5 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+                >
+                  <span className="text-lg font-medium">{genre}</span>
+                  <span className="text-zinc-600 transition group-hover:text-zinc-300">›</span>
+                </Link>
+              ))}
+            </section>
+          ) : (
+            <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/45 p-6 text-zinc-300">
+              Genre data is not available yet.
+            </section>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  if (section === "country") {
+    return (
+      <div className="min-h-screen bg-[#050608] pt-28 text-zinc-100 sm:pt-32">
+        <main className="page-container pb-16">
+          <h1 className="text-4xl font-semibold text-white">Country</h1>
+
+          {countryMenuItems.length > 0 ? (
+            <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {countryMenuItems.map((country) => (
+                <Link
+                  key={country}
+                  href={`/search?q=${encodeURIComponent(country)}`}
+                  className="group flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-5 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+                >
+                  <span className="text-lg font-medium">{country}</span>
+                  <span className="text-zinc-600 transition group-hover:text-zinc-300">›</span>
+                </Link>
+              ))}
+            </section>
+          ) : (
+            <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/45 p-6 text-zinc-300">
+              Country data is not available yet.
+            </section>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  if (section === "year") {
+    return (
+      <div className="min-h-screen bg-[#050608] pt-28 text-zinc-100 sm:pt-32">
+        <main className="page-container pb-16">
+          <h1 className="text-4xl font-semibold text-white">Year</h1>
+
+          {yearMenuItems.length > 0 ? (
+            <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {yearMenuItems.map((year) => (
+                <Link
+                  key={year}
+                  href={`/search?q=${encodeURIComponent(year)}`}
+                  className="group flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-5 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+                >
+                  <span className="text-lg font-medium">{year}</span>
+                  <span className="text-zinc-600 transition group-hover:text-zinc-300">›</span>
+                </Link>
+              ))}
+            </section>
+          ) : (
+            <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/45 p-6 text-zinc-300">
+              Year data is not available yet.
+            </section>
+          )}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050608] text-zinc-100">
@@ -128,7 +233,7 @@ export function SectionPage({ section, featured, rows }) {
       <main className="relative z-10">
         <HeroSection items={heroItems} />
 
-        <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 pb-16 sm:px-12 lg:px-16">
+        <section className="page-container flex flex-col gap-8 pb-16">
           <section className="scroll-mt-28 rounded-[1.75rem] border border-white/6 bg-white/3 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur-sm sm:p-6">
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <div>

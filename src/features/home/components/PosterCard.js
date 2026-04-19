@@ -6,6 +6,7 @@ export function PosterCard({ item }) {
   const qualityBadge = item.contentType === "movie" ? "WEB-DL" : "TV";
   const type = item.contentType === "movie" ? "movie" : "show";
   const detailPath = `/movie/${item.id}-${type}`;
+  const roundedRating = Number.isFinite(Number(item.rating)) ? Math.round(Number(item.rating)) : 7;
 
   return (
     <Link href={detailPath}>
@@ -34,7 +35,7 @@ export function PosterCard({ item }) {
         </div>
 
         <div className="absolute bottom-2 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-yellow-300">
-          ★ {item.rating ?? "7.0"}
+          ★ {roundedRating}
         </div>
 
         <div className="absolute bottom-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-zinc-200">

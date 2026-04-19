@@ -11,11 +11,13 @@ export async function generateMetadata({ searchParams }) {
       description:
         "Search movies, TV shows, cast, genres, and episodes to discover streaming pages with detailed metadata.",
       keywords: [
+        "flixaroo",
+        "flixaroo.com",
         "search movies",
         "search TV shows",
         "find episode",
         "movie discovery",
-        "PawPaw Streaming search",
+        "Flixaroo search",
       ],
       alternates: {
         canonical: "/search",
@@ -27,6 +29,8 @@ export async function generateMetadata({ searchParams }) {
     title: `Search \"${query}\"`,
     description: `Find movies, TV series, and episodes related to ${query}. Browse matching titles and open detailed streaming pages.`,
     keywords: [
+      "flixaroo",
+      "flixaroo.com",
       `${query} movie`,
       `${query} TV series`,
       `${query} episode`,

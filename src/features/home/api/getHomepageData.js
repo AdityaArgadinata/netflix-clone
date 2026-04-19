@@ -1,23 +1,5 @@
 import { mapHomepagePayload } from "@/features/home/mappers/homeMapper";
-
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-
-async function fetchTMDB(endpoint) {
-  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}`;
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
-    next: { revalidate: 300 },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch TMDB API: ${response.status}`);
-  }
-
-  return response.json();
-}
+import { fetchTMDB } from "@/features/home/api/tmdbClient";
 
 function formatTMDBMovie(movie) {
   return {
@@ -49,56 +31,110 @@ function formatTMDBShow(show) {
   };
 }
 
-async function fetchItemLogo(itemId, isTV = false) {
+function getItemKey(id, isTV = false) {
+  return `${isTV ? "tv" : "movie"}-${id}`;
+}
+
+function extractCountry(detailData) {
+  if (Array.isArray(detailData?.production_countries) && detailData.production_countries.length > 0) {
+    const name = detailData.production_countries[0]?.name;
+    if (name) return name;
+  }
+
+  if (Array.isArray(detailData?.origin_country) && detailData.origin_country.length > 0) {
+    return detailData.origin_country[0] || null;
+  }
+
+  return null;
+}
+
+function extractNetworks(detailData, isTV = false) {
+  if (isTV) {
+    return Array.isArray(detailData?.networks)
+      ? detailData.networks.filter((network) => typeof network?.name === "string")
+      : [];
+  }
+
+  return Array.isArray(detailData?.production_companies)
+    ? detailData.production_companies.filter((company) => typeof company?.name === "string")
+    : [];
+}
+
+async function fetchItemMetadata(itemId, isTV = false) {
   try {
     const endpoint = isTV ? `/tv/${itemId}` : `/movie/${itemId}`;
-    const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&append_to_response=images`;
-    const detailData = await fetch(url).then(r => r.json());
+    const detailData = await fetchTMDB(endpoint, {
+      params: { append_to_response: "images" },
+      revalidate: 3600,
+      cacheTtlMs: 3600 * 1000,
+    });
+
+    let logoPath = null;
     
     if (detailData.images?.logos && detailData.images.logos.length > 0) {
       const bestLogo = detailData.images.logos
-        .filter(logo => logo.iso_639_1 === 'en' || !logo.iso_639_1)
+        .filter((logo) => logo.iso_639_1 === "en" || !logo.iso_639_1)
         .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))[0];
-      if (bestLogo) return bestLogo.file_path;
+      if (bestLogo) logoPath = bestLogo.file_path;
     }
+
+    return {
+      logoPath,
+      genres: Array.isArray(detailData?.genres) ? detailData.genres : [],
+      country: extractCountry(detailData),
+      networks: extractNetworks(detailData, isTV),
+    };
   } catch (err) {
-    console.error(`Failed to fetch logo for ${itemId}:`, err);
+    console.error(`Failed to fetch metadata for ${itemId}:`, err);
   }
-  return null;
+
+  return {
+    logoPath: null,
+    genres: [],
+    country: null,
+    networks: [],
+  };
 }
 
 async function fetchHomepagePayload() {
   const [trendingMovies, trendingShows, topRatedMovies, topRatedShows] = await Promise.all([
-    fetchTMDB("/trending/movie/week"),
-    fetchTMDB("/trending/tv/week"),
-    fetchTMDB("/movie/top_rated"),
-    fetchTMDB("/tv/top_rated"),
+    fetchTMDB("/trending/movie/week", { revalidate: 300, cacheTtlMs: 300 * 1000 }),
+    fetchTMDB("/trending/tv/week", { revalidate: 300, cacheTtlMs: 300 * 1000 }),
+    fetchTMDB("/movie/top_rated", { revalidate: 300, cacheTtlMs: 300 * 1000 }),
+    fetchTMDB("/tv/top_rated", { revalidate: 300, cacheTtlMs: 300 * 1000 }),
   ]);
 
-  // Fetch logos for all trending items to display in hero carousel and rows
+  // Fetch metadata for all homepage items to populate hero and browse chips.
   const allTrendingMovies = trendingMovies.results.slice(0, 10);
   const allTrendingShows = trendingShows.results.slice(0, 10);
   const allTopRatedMovies = topRatedMovies.results.slice(0, 10);
   const allTopRatedShows = topRatedShows.results.slice(0, 10);
   
-  const itemsToFetchLogos = [
-    ...allTrendingMovies.map(m => ({ id: m.id, isTV: false })),
-    ...allTrendingShows.map(s => ({ id: s.id, isTV: true })),
-    ...allTopRatedMovies.map(m => ({ id: m.id, isTV: false })),
-    ...allTopRatedShows.map(s => ({ id: s.id, isTV: true })),
+  const itemsToFetchMetadata = [
+    ...allTrendingMovies.map((m) => ({ id: m.id, isTV: false })),
+    ...allTrendingShows.map((s) => ({ id: s.id, isTV: true })),
+    ...allTopRatedMovies.map((m) => ({ id: m.id, isTV: false })),
+    ...allTopRatedShows.map((s) => ({ id: s.id, isTV: true })),
   ];
 
-  const logos = await Promise.all(
-    itemsToFetchLogos.map(item => item.id ? fetchItemLogo(item.id, item.isTV) : Promise.resolve(null))
+  const metadataList = await Promise.all(
+    itemsToFetchMetadata.map((item) =>
+      item.id ? fetchItemMetadata(item.id, item.isTV) : Promise.resolve(null)
+    )
   );
 
-  const logoMap = new Map();
-  itemsToFetchLogos.forEach((item, idx) => {
-    if (item.id) logoMap.set(item.id, logos[idx]);
+  const metadataMap = new Map();
+  itemsToFetchMetadata.forEach((item, idx) => {
+    if (item.id) {
+      metadataMap.set(getItemKey(item.id, item.isTV), metadataList[idx]);
+    }
   });
 
   // Featured item
   const featuredMovie = trendingMovies.results[0];
+  const featuredMeta = featuredMovie?.id
+    ? metadataMap.get(getItemKey(featuredMovie.id, false))
+    : null;
   const featuredItem = {
     id: featuredMovie?.id,
     title: featuredMovie?.title,
@@ -107,32 +143,41 @@ async function fetchHomepagePayload() {
     tagline: featuredMovie?.tagline || null,
     posterPath: featuredMovie?.poster_path,
     backdropPath: featuredMovie?.backdrop_path,
-    logoPath: logoMap.get(featuredMovie?.id),
+    logoPath: featuredMeta?.logoPath || null,
     releaseDate: featuredMovie?.release_date,
     voteAverage: featuredMovie?.vote_average,
+    genres: featuredMeta?.genres || [],
+    country: featuredMeta?.country || null,
+    networks: featuredMeta?.networks || [],
     contentType: "movie",
   };
 
-  // Format trending movies with logos where available
+  // Format trending movies with metadata where available.
   const trendingMoviesData = trendingMovies.results.slice(0, 10).map((movie) => {
     const formatted = formatTMDBMovie(movie);
-    const logo = logoMap.get(movie.id);
+    const itemMeta = metadataMap.get(getItemKey(movie.id, false));
     return {
       content: {
         ...formatted,
-        logoPath: logo,
+        logoPath: itemMeta?.logoPath || null,
+        genres: itemMeta?.genres || [],
+        country: itemMeta?.country || null,
+        networks: itemMeta?.networks || [],
       },
     };
   });
 
-  // Format trending shows with logos where available
+  // Format trending shows with metadata where available.
   const trendingShowsData = trendingShows.results.slice(0, 10).map((show) => {
     const formatted = formatTMDBShow(show);
-    const logo = logoMap.get(show.id);
+    const itemMeta = metadataMap.get(getItemKey(show.id, true));
     return {
       content: {
         ...formatted,
-        logoPath: logo,
+        logoPath: itemMeta?.logoPath || null,
+        genres: itemMeta?.genres || [],
+        country: itemMeta?.country || null,
+        networks: itemMeta?.networks || [],
       },
     };
   });
@@ -173,11 +218,14 @@ async function fetchHomepagePayload() {
         sortOrder: 3,
         data: allTopRatedMovies.map((movie) => {
           const formatted = formatTMDBMovie(movie);
-          const logo = logoMap.get(movie.id);
+          const itemMeta = metadataMap.get(getItemKey(movie.id, false));
           return {
             content: {
               ...formatted,
-              logoPath: logo,
+              logoPath: itemMeta?.logoPath || null,
+              genres: itemMeta?.genres || [],
+              country: itemMeta?.country || null,
+              networks: itemMeta?.networks || [],
             },
           };
         }),
@@ -190,11 +238,14 @@ async function fetchHomepagePayload() {
         sortOrder: 4,
         data: allTopRatedShows.map((show) => {
           const formatted = formatTMDBShow(show);
-          const logo = logoMap.get(show.id);
+          const itemMeta = metadataMap.get(getItemKey(show.id, true));
           return {
             content: {
               ...formatted,
-              logoPath: logo,
+              logoPath: itemMeta?.logoPath || null,
+              genres: itemMeta?.genres || [],
+              country: itemMeta?.country || null,
+              networks: itemMeta?.networks || [],
             },
           };
         }),

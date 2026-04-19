@@ -26,6 +26,8 @@ export async function generateMetadata() {
     title: "Watch Movies and TV Series Online",
     description,
     keywords: unique([
+      "flixaroo",
+      "flixaroo.com",
       "watch movies online",
       "watch TV series",
       "stream episodes",
@@ -106,7 +108,7 @@ export default async function Home() {
       <main className="relative z-10">
         <HeroSection items={featuredItems} />
 
-        <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 pb-16 sm:px-12 lg:px-16">
+        <section className="page-container flex flex-col gap-8 pb-16">
           {displayRows.length > 0 ? (
             displayRows.map((row) => (
               <section
@@ -131,7 +133,7 @@ export default async function Home() {
                 <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Explore the library like a streaming home</h2>
               </div>
               <p className="max-w-xl text-sm text-zinc-400">
-                Pilih genre, negara, tahun, atau network untuk lompat ke koleksi yang terasa seperti rak Netflix.
+                Pick a genre, country, year, or network to jump into curated collections that feel like a streaming shelf.
               </p>
             </div>
 

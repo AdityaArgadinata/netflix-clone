@@ -26,6 +26,8 @@ export async function generateMetadata({ params }) {
       title,
       description,
       keywords: [
+        "flixaroo",
+        "flixaroo.com",
         `${movie.title} ${isTV ? "TV series" : "movie"}`,
         `watch ${movie.title} online`,
         `${movie.title} cast`,
@@ -37,7 +39,7 @@ export async function generateMetadata({ params }) {
         canonical,
       },
       openGraph: {
-        title: `${title} | PawPaw Streaming`,
+        title: `${title} | Flixaroo`,
         description,
         url: canonical,
         type: isTV ? "video.tv_show" : "video.movie",
@@ -52,7 +54,7 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: movie.backdropUrl ? "summary_large_image" : "summary",
-        title: `${title} | PawPaw Streaming`,
+        title: `${title} | Flixaroo`,
         description,
         images: movie.backdropUrl ? [movie.backdropUrl] : undefined,
       },

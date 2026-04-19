@@ -234,7 +234,7 @@ export function SearchModal({ isOpen, onClose }) {
               {query.trim() && displayItems.length === 0 && !isLoading && (
                 <div className="flex items-center justify-center px-4 py-12">
                   <div className="text-center">
-                    <p className="text-sm text-zinc-400">Tidak ada hasil untuk</p>
+                    <p className="text-sm text-zinc-400">No results for</p>
                     <p className="text-sm font-semibold text-zinc-300">&quot;{query}&quot;</p>
                   </div>
                 </div>

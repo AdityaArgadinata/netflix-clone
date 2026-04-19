@@ -58,7 +58,7 @@ export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, on
 
       {/* Player Selection */}
       <div className="border-t border-zinc-800 bg-black/50 p-3 sm:p-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="page-container">
           <button
             type="button"
             onClick={() => setIsPlayerDropdownOpen((prev) => !prev)}

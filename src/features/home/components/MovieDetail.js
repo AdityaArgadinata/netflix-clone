@@ -14,6 +14,8 @@ export function MovieDetail({ movie }) {
 
   const year = movie.releaseDate ? movie.releaseDate.split("-")[0] : "N/A";
   const isTVSeries = movie.contentType === "tv_series";
+  const roundedMovieRating = Number.isFinite(Number(movie.rating)) ? Math.round(Number(movie.rating)) : "N/A";
+  const studioPartners = Array.isArray(movie.studioPartners) ? movie.studioPartners : [];
   const buildEpisodeHref = (episode) =>
     `/movie/${movie.id}-show/season/${episode.seasonNumber}/episode/${episode.episodeNumber}`;
 
@@ -42,25 +44,44 @@ export function MovieDetail({ movie }) {
           />
         )}
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#0a0a0f]/50 to-[#0a0a0f]" />
+
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setShowPlayer(true)}
+              className="cursor-pointer flex h-20 w-20 items-center justify-center rounded-full border-3 border-white/35 bg-black/25 text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md transition hover:border-red-500 hover:bg-red-600"
+              aria-label="Play"
+            >
+              <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+              </svg>
+            </button>
+          </div>
+        </div>
         
         {/* Logo overlaid on backdrop */}
         {movie.logoUrl && (
-          <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 max-w-xs">
-            <Image 
-              src={movie.logoUrl} 
-              alt={movie.title}
-              width={500}
-              height={200}
-              className="h-20 sm:h-32 object-contain drop-shadow-2xl"
-              priority
-              loading="eager"
-            />
+          <div className="absolute inset-x-0 bottom-4 sm:bottom-6">
+            <div className="page-container">
+              <div className="max-w-xs">
+                <Image 
+                  src={movie.logoUrl} 
+                  alt={movie.title}
+                  width={500}
+                  height={200}
+                  className="h-20 sm:h-32 object-contain drop-shadow-2xl"
+                  priority
+                  loading="eager"
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="relative w-full px-6 z-10 sm:px-12 lg:px-16">
+      <div className="page-container relative z-10">
         {/* Title and Info - Left Aligned */}
         <div className="flex flex-col pt-4 max-w-2xl">
           {/* Title - Show if no logo */}
@@ -70,15 +91,6 @@ export function MovieDetail({ movie }) {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 mb-6">
-            <button 
-              onClick={() => setShowPlayer(true)}
-              className="px-6 py-2 bg-white text-black rounded font-bold hover:bg-gray-200 transition flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-              </svg>
-              Play
-            </button>
             <button className="px-6 py-2 bg-zinc-700 text-white rounded hover:bg-zinc-600 transition flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
@@ -110,7 +122,7 @@ export function MovieDetail({ movie }) {
               </>
             ) : null}
 
-            <span className="text-yellow-300 font-semibold">★ {movie.rating?.toFixed(1) || "N/A"}</span>
+            <span className="text-yellow-300 font-semibold">★ {roundedMovieRating}</span>
             <span className="text-zinc-500">•</span>
 
             {movie.productionCountries.length > 0 && (
@@ -159,6 +171,28 @@ export function MovieDetail({ movie }) {
           <p className="text-sm text-zinc-300 leading-relaxed">
             {movie.overview || "No synopsis available."}
           </p>
+
+          {studioPartners.length > 0 && (
+            <div className="mt-8">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Studios & Networks</p>
+              <div className="flex flex-wrap items-center gap-6">
+                {studioPartners.map((studio) => (
+                  <div
+                    key={`${studio.id}-${studio.name}`}
+                    className="relative h-11 w-32 rounded-md border border-zinc-700/60 bg-zinc-300/90 p-2"
+                  >
+                    <Image
+                      src={studio.logoUrl}
+                      alt={studio.name}
+                      fill
+                      className="object-contain p-2 brightness-0 contrast-125"
+                      sizes="112px"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Episodes for TV Series - Before Cast */}
@@ -200,8 +234,8 @@ export function MovieDetail({ movie }) {
                     <p className="text-xs text-zinc-400 line-clamp-3">{episode.overview || "No synopsis available."}</p>
                     <div className="flex justify-between items-center mt-3">
                       <span className="text-xs text-zinc-500">{episode.airDate || "TBA"}</span>
-                      {episode.rating && (
-                        <span className="text-xs text-yellow-300">★ {episode.rating.toFixed(1)}</span>
+                      {Number.isFinite(Number(episode.rating)) && (
+                        <span className="text-xs text-yellow-300">★ {Math.round(Number(episode.rating))}</span>
                       )}
                     </div>
                   </div>

@@ -17,8 +17,8 @@ export function SearchResults({ query, results = [] }) {
     <div className="min-h-screen bg-[#0a0a0f] text-zinc-100">
       <div className="pt-24 sm:pt-28 lg:pt-32">
         {/* Header */}
-        <header className="border-b border-zinc-800 bg-black/95 px-6 py-4 sm:px-12 lg:px-16">
-          <div className="mx-auto max-w-7xl">
+        <header className="border-b border-zinc-800 bg-black/95 py-4">
+          <div className="page-container">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
@@ -39,8 +39,8 @@ export function SearchResults({ query, results = [] }) {
         </header>
 
         {/* Content */}
-        <main className="px-6 pb-8 pt-8 sm:px-12 lg:px-16">
-          <div className="mx-auto max-w-7xl">
+        <main className="pb-8 pt-8">
+          <div className="page-container">
           {results.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {results.map((item) => {
@@ -123,10 +123,9 @@ export function SearchResults({ query, results = [] }) {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-              <h2 className="mb-2 text-lg font-semibold text-zinc-300">Tidak ada hasil</h2>
+              <h2 className="mb-2 text-lg font-semibold text-zinc-300">No results found</h2>
               <p className="text-center text-sm text-zinc-400 max-w-md">
-                Tidak menemukan hasil untuk <span className="font-semibold">&quot;{query}&quot;</span>. Coba gunakan kata kunci
-                yang berbeda.
+                We could not find results for <span className="font-semibold">&quot;{query}&quot;</span>. Try a different keyword.
               </p>
             </div>
           )}

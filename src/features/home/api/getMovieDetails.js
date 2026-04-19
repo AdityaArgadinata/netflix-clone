@@ -1,54 +1,54 @@
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+import { buildImageUrl, fetchTMDB } from "@/features/home/api/tmdbClient";
 
-async function fetchTMDB(endpoint) {
-  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&append_to_response=credits`;
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
-    next: { revalidate: 3600 },
-  });
+function mapStudioPartners(data, isTV = false) {
+  const networkItems = Array.isArray(data?.networks) ? data.networks : [];
+  const productionItems = Array.isArray(data?.production_companies) ? data.production_companies : [];
+  const sourceItems = isTV ? [...networkItems, ...productionItems] : productionItems;
+  const seen = new Set();
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch TMDB API: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-function buildImageUrl(path, size = "w780") {
-  if (!path) return null;
-  return `https://image.tmdb.org/t/p/${size}${path}`;
+  return sourceItems
+    .map((item) => ({
+      id: item?.id,
+      name: item?.name,
+      logoUrl: buildImageUrl(item?.logo_path, "w300"),
+    }))
+    .filter((item) => item.name && item.logoUrl)
+    .filter((item) => {
+      if (seen.has(item.name)) return false;
+      seen.add(item.name);
+      return true;
+    })
+    .slice(0, 10);
 }
 
 export async function getMovieDetails(movieId, isTV = false) {
   const endpoint = isTV ? `/tv/${movieId}` : `/movie/${movieId}`;
   
   try {
-    const data = await fetchTMDB(endpoint);
-    
-    // Fetch images to get logo
+    const data = await fetchTMDB(endpoint, {
+      params: { append_to_response: "credits,images" },
+      revalidate: 3600,
+      cacheTtlMs: 3600 * 1000,
+    });
+
     let logoUrl = null;
-    try {
-      const imageEndpoint = isTV ? `/tv/${movieId}/images` : `/movie/${movieId}/images`;
-      const imagesData = await fetch(`${TMDB_BASE_URL}${imageEndpoint}?api_key=${TMDB_API_KEY}`).then(r => r.json());
-      
-      if (imagesData.logos && imagesData.logos.length > 0) {
-        const bestLogo = imagesData.logos
-          .filter(logo => logo.iso_639_1 === 'en' || !logo.iso_639_1)
-          .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))[0];
-        if (bestLogo) logoUrl = buildImageUrl(bestLogo.file_path, "w500");
+    if (data.images?.logos && data.images.logos.length > 0) {
+      const bestLogo = data.images.logos
+        .filter((logo) => logo.iso_639_1 === "en" || !logo.iso_639_1)
+        .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))[0];
+      if (bestLogo) {
+        logoUrl = buildImageUrl(bestLogo.file_path, "w500");
       }
-    } catch (err) {
-      console.error(`Failed to fetch images for ${movieId}:`, err);
     }
     
     let episodes = [];
     // Fetch episodes for TV series
     if (isTV && data.seasons?.length > 0) {
       try {
-        const seasonData = await fetchTMDB(`/tv/${movieId}/season/1`);
+        const seasonData = await fetchTMDB(`/tv/${movieId}/season/1`, {
+          revalidate: 3600,
+          cacheTtlMs: 3600 * 1000,
+        });
         episodes = seasonData.episodes?.map(ep => ({
           id: ep.id,
           episodeNumber: ep.episode_number,
@@ -87,6 +87,7 @@ export async function getMovieDetails(movieId, isTV = false) {
       networks: Array.isArray(data.networks) 
         ? data.networks.map(n => n.name) 
         : [],
+      studioPartners: mapStudioPartners(data, isTV),
       creators: Array.isArray(data.created_by)
         ? data.created_by.map(c => c.name)
         : [],

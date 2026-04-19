@@ -1,35 +1,4 @@
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-
-async function fetchTMDB(endpoint, params = {}) {
-  const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
-  
-  // Add required params
-  url.searchParams.append("api_key", TMDB_API_KEY);
-  url.searchParams.append("include_adult", "false");
-  url.searchParams.append("language", "en-US");
-  
-  // Add custom params
-  Object.entries(params).forEach(([key, value]) => {
-    url.searchParams.append(key, value);
-  });
-
-  const response = await fetch(url.toString(), {
-    headers: { 
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("[fetchTMDB] Error response:", errorText);
-    throw new Error(`TMDB API Error: ${response.status} - ${errorText}`);
-  }
-
-  const data = await response.json();
-  return data;
-}
+import { fetchTMDB } from "@/features/home/api/tmdbClient";
 
 export async function searchContent(query) {
   if (!query || query.trim().length === 0) {
@@ -38,8 +7,26 @@ export async function searchContent(query) {
 
   try {
     const [movies, shows] = await Promise.all([
-      fetchTMDB("/search/movie", { query: query.trim(), page: "1" }),
-      fetchTMDB("/search/tv", { query: query.trim(), page: "1" }),
+      fetchTMDB("/search/movie", {
+        params: {
+          query: query.trim(),
+          page: "1",
+          include_adult: "false",
+          language: "en-US",
+        },
+        revalidate: 120,
+        cacheTtlMs: 120 * 1000,
+      }),
+      fetchTMDB("/search/tv", {
+        params: {
+          query: query.trim(),
+          page: "1",
+          include_adult: "false",
+          language: "en-US",
+        },
+        revalidate: 120,
+        cacheTtlMs: 120 * 1000,
+      }),
     ]);
 
     const results = [];

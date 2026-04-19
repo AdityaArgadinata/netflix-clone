@@ -34,7 +34,11 @@ function getYear(item) {
 function mapGenres(item) {
   if (!Array.isArray(item.genres)) return [];
   return item.genres
-    .map((genre) => (typeof genre?.name === "string" ? genre.name : null))
+    .map((genre) => {
+      if (typeof genre === "string") return genre;
+      if (typeof genre?.name === "string") return genre.name;
+      return null;
+    })
     .filter(Boolean);
 }
 

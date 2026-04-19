@@ -36,6 +36,8 @@ export async function generateMetadata({ params }) {
       title: `${series.title} S${currentEpisode.seasonNumber}E${currentEpisode.episodeNumber} - ${episodeName}`,
       description,
       keywords: [
+        "flixaroo",
+        "flixaroo.com",
         `${series.title} season ${currentEpisode.seasonNumber}`,
         `${series.title} episode ${currentEpisode.episodeNumber}`,
         `${episodeName} streaming`,
@@ -46,7 +48,7 @@ export async function generateMetadata({ params }) {
         canonical,
       },
       openGraph: {
-        title: `${series.title} S${currentEpisode.seasonNumber}E${currentEpisode.episodeNumber}`,
+        title: `${series.title} S${currentEpisode.seasonNumber}E${currentEpisode.episodeNumber} | Flixaroo`,
         description,
         url: canonical,
         type: "video.episode",
@@ -61,7 +63,7 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: currentEpisode.stillUrl || series.backdropUrl ? "summary_large_image" : "summary",
-        title: `${series.title} S${currentEpisode.seasonNumber}E${currentEpisode.episodeNumber}`,
+        title: `${series.title} S${currentEpisode.seasonNumber}E${currentEpisode.episodeNumber} | Flixaroo`,
         description,
       },
     };

@@ -13,15 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "http://localhost:3000").replace(
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://flixaroo.com").replace(
   /\/$/,
   ""
 );
 
-const siteName = "PawPaw Streaming";
+const siteName = "Flixaroo";
 const defaultDescription =
-  "Watch trending movies, TV series, and episodes with fast streaming links, detailed synopses, cast info, and curated genre collections.";
+  "Watch trending movies, TV series, and episodes on Flixaroo with fast streaming links, detailed synopses, cast info, and curated genre collections.";
 const defaultKeywords = [
+  "flixaroo",
+  "flixaroo.com",
   "streaming movies",
   "watch TV series online",
   "latest movies",
@@ -30,14 +32,14 @@ const defaultKeywords = [
   "episode streaming",
   "top rated films",
   "online cinema catalog",
-  "PawPaw Streaming",
+  "Flixaroo",
 ];
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteName,
-    template: "%s | PawPaw Streaming",
+    template: "%s | Flixaroo",
   },
   description: defaultDescription,
   applicationName: siteName,

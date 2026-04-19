@@ -1,33 +1,13 @@
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-
 import { getMovieDetails } from "@/features/home/api/getMovieDetails";
-
-async function fetchTMDB(endpoint) {
-  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}`;
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
-    next: { revalidate: 3600 },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch TMDB API: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-function buildImageUrl(path, size = "w780") {
-  if (!path) return null;
-  return `https://image.tmdb.org/t/p/${size}${path}`;
-}
+import { buildImageUrl, fetchTMDB } from "@/features/home/api/tmdbClient";
 
 export async function getEpisodeDetails(movieId, seasonNumber = 1, episodeNumber = 1) {
   const [series, episodeData] = await Promise.all([
     getMovieDetails(movieId, true),
-    fetchTMDB(`/tv/${movieId}/season/${seasonNumber}/episode/${episodeNumber}`),
+    fetchTMDB(`/tv/${movieId}/season/${seasonNumber}/episode/${episodeNumber}`, {
+      revalidate: 3600,
+      cacheTtlMs: 3600 * 1000,
+    }),
   ]);
 
   return {

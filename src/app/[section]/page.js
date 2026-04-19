@@ -22,18 +22,20 @@ export async function generateMetadata({ params }) {
     title: title || "Catalog",
     description: `Browse ${normalizedSection} collections, discover related titles, and open complete movie and TV detail pages with streaming links.`,
     keywords: [
+      "flixaroo",
+      "flixaroo.com",
       `${normalizedSection} movies`,
       `${normalizedSection} TV series`,
       `${normalizedSection} streaming`,
       `${normalizedSection} catalog`,
       `watch ${normalizedSection}`,
-      "PawPaw Streaming",
+      "Flixaroo",
     ],
     alternates: {
       canonical: title ? `/${section}` : "/",
     },
     openGraph: {
-      title: `${sectionLabel} | PawPaw Streaming`,
+      title: `${sectionLabel} | Flixaroo`,
       description: `Explore ${normalizedSection} and discover movies and TV series in one page.`,
       url: title ? `/${section}` : "/",
       type: "website",
