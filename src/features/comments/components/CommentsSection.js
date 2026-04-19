@@ -19,6 +19,11 @@ export function CommentsSection({ movieId, movieTitle }) {
     const checkAuth = async () => {
       try {
         const supabase = getSupabaseBrowserClient();
+        if (!supabase) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -38,6 +43,10 @@ export function CommentsSection({ movieId, movieTitle }) {
     const fetchComments = async () => {
       try {
         const supabase = getSupabaseBrowserClient();
+        if (!supabase) {
+          setComments([]);
+          return;
+        }
         
         // For now, we'll use a simple approach - fetch from a comments table if it exists
         // If not, we can store in localStorage or just show a message
@@ -78,6 +87,10 @@ export function CommentsSection({ movieId, movieTitle }) {
 
     try {
       const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setError("Auth service is unavailable. Please check deployment environment variables.");
+        return;
+      }
 
       const { error: insertError } = await supabase.from("movie_comments").insert([
         {

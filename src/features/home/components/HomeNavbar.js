@@ -18,6 +18,12 @@ export function HomeNavbar() {
   // Check auth status on mount and listen for auth changes
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setLoading(false);
+      setUser(null);
+      return;
+    }
     
     // Get initial session
     const getSession = async () => {
@@ -44,6 +50,12 @@ export function HomeNavbar() {
   const handleSignOut = async () => {
     try {
       const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setUser(null);
+        setIsUserMenuOpen(false);
+        router.push("/sign-in");
+        return;
+      }
       await supabase.auth.signOut();
       setUser(null);
       setIsUserMenuOpen(false);

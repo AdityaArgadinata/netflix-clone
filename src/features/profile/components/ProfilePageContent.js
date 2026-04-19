@@ -20,6 +20,11 @@ export function ProfilePageContent() {
     const checkAuth = async () => {
       try {
         const supabase = getSupabaseBrowserClient();
+        if (!supabase) {
+          setLoading(false);
+          router.push("/sign-in?error=missing_supabase_env");
+          return;
+        }
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -51,6 +56,10 @@ export function ProfilePageContent() {
     setUpdateLoading(true);
     try {
       const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setMessage({ type: "error", text: "Auth service is unavailable. Please try again later." });
+        return;
+      }
       const { error } = await supabase.auth.updateUser({
         data: { full_name: displayName.trim() },
       });
@@ -78,6 +87,10 @@ export function ProfilePageContent() {
   const handleSignOut = async () => {
     try {
       const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        router.push("/sign-in");
+        return;
+      }
       await supabase.auth.signOut();
       router.push("/");
       router.refresh();
