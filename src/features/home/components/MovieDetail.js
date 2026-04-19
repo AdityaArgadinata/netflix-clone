@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
+import { CommentsSection } from "@/features/comments/components/CommentsSection";
 
 export function MovieDetail({ movie }) {
   const router = useRouter();
   const [showPlayer, setShowPlayer] = useState(false);
+  const [failedStudioLogos, setFailedStudioLogos] = useState(new Set());
 
   if (!movie) return null;
 
@@ -16,6 +18,9 @@ export function MovieDetail({ movie }) {
   const isTVSeries = movie.contentType === "tv_series";
   const roundedMovieRating = Number.isFinite(Number(movie.rating)) ? Math.round(Number(movie.rating)) : "N/A";
   const studioPartners = Array.isArray(movie.studioPartners) ? movie.studioPartners : [];
+  const markStudioLogoFailed = (studioKey) => {
+    setFailedStudioLogos((prev) => new Set([...prev, studioKey]));
+  };
   const buildEpisodeHref = (episode) =>
     `/movie/${movie.id}-show/season/${episode.seasonNumber}/episode/${episode.episodeNumber}`;
 
@@ -176,20 +181,32 @@ export function MovieDetail({ movie }) {
             <div className="mt-8">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Studios & Networks</p>
               <div className="flex flex-wrap items-center gap-6">
-                {studioPartners.map((studio) => (
-                  <div
-                    key={`${studio.id}-${studio.name}`}
-                    className="relative h-11 w-32 rounded-md border border-zinc-700/60 bg-zinc-300/90 p-2"
-                  >
-                    <Image
-                      src={studio.logoUrl}
-                      alt={studio.name}
-                      fill
-                      className="object-contain p-2 brightness-0 contrast-125"
-                      sizes="112px"
-                    />
-                  </div>
-                ))}
+                {studioPartners.map((studio) => {
+                  const studioKey = `${studio.id}-${studio.name}`;
+                  const hasLogo = Boolean(studio.logoUrl) && !failedStudioLogos.has(studioKey);
+
+                  return (
+                    <div
+                      key={studioKey}
+                      className="relative flex h-14 w-40 items-center justify-center rounded-md border border-zinc-700/70 bg-linear-to-b from-zinc-800 to-zinc-900 px-3"
+                    >
+                      {hasLogo ? (
+                        <Image
+                          src={studio.logoUrl}
+                          alt={studio.name}
+                          fill
+                          onError={() => markStudioLogoFailed(studioKey)}
+                          className="object-contain p-2"
+                          sizes="160px"
+                        />
+                      ) : (
+                        <span className="line-clamp-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-zinc-200">
+                          {studio.name}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -383,6 +400,11 @@ export function MovieDetail({ movie }) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Comments Section */}
+      <div className="page-container">
+        <CommentsSection movieId={movie.id} movieTitle={movie.title} />
       </div>
 
       {/* Video Player Modal */}

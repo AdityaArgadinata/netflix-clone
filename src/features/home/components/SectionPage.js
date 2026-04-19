@@ -141,7 +141,7 @@ export function SectionPage({ section, featured, rows }) {
 
   if (section === "genres") {
     return (
-      <div className="min-h-screen bg-[#050608] pt-28 text-zinc-100 sm:pt-32">
+      <div className="min-h-screen bg-[#111111] pt-28 text-zinc-100 sm:pt-32">
         <main className="page-container pb-16">
           <h1 className="text-4xl font-semibold text-white">Genres</h1>
 
@@ -151,7 +151,7 @@ export function SectionPage({ section, featured, rows }) {
                 <Link
                   key={genre}
                   href={`/search?q=${encodeURIComponent(genre)}`}
-                  className="group flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-5 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+                  className="group flex items-center justify-between rounded-sm border border-zinc-700 bg-[#1b1b1b] px-4 py-5 text-zinc-300 transition hover:border-[#e50914] hover:bg-[#202020] hover:text-white"
                 >
                   <span className="text-lg font-medium">{genre}</span>
                   <span className="text-zinc-600 transition group-hover:text-zinc-300">›</span>
@@ -170,7 +170,7 @@ export function SectionPage({ section, featured, rows }) {
 
   if (section === "country") {
     return (
-      <div className="min-h-screen bg-[#050608] pt-28 text-zinc-100 sm:pt-32">
+      <div className="min-h-screen bg-[#111111] pt-28 text-zinc-100 sm:pt-32">
         <main className="page-container pb-16">
           <h1 className="text-4xl font-semibold text-white">Country</h1>
 
@@ -180,7 +180,7 @@ export function SectionPage({ section, featured, rows }) {
                 <Link
                   key={country}
                   href={`/search?q=${encodeURIComponent(country)}`}
-                  className="group flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-5 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+                  className="group flex items-center justify-between rounded-sm border border-zinc-700 bg-[#1b1b1b] px-4 py-5 text-zinc-300 transition hover:border-[#e50914] hover:bg-[#202020] hover:text-white"
                 >
                   <span className="text-lg font-medium">{country}</span>
                   <span className="text-zinc-600 transition group-hover:text-zinc-300">›</span>
@@ -199,7 +199,7 @@ export function SectionPage({ section, featured, rows }) {
 
   if (section === "year") {
     return (
-      <div className="min-h-screen bg-[#050608] pt-28 text-zinc-100 sm:pt-32">
+      <div className="min-h-screen bg-[#111111] pt-28 text-zinc-100 sm:pt-32">
         <main className="page-container pb-16">
           <h1 className="text-4xl font-semibold text-white">Year</h1>
 
@@ -209,7 +209,7 @@ export function SectionPage({ section, featured, rows }) {
                 <Link
                   key={year}
                   href={`/search?q=${encodeURIComponent(year)}`}
-                  className="group flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-5 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+                  className="group flex items-center justify-between rounded-sm border border-zinc-700 bg-[#1b1b1b] px-4 py-5 text-zinc-300 transition hover:border-[#e50914] hover:bg-[#202020] hover:text-white"
                 >
                   <span className="text-lg font-medium">{year}</span>
                   <span className="text-zinc-600 transition group-hover:text-zinc-300">›</span>
@@ -227,17 +227,17 @@ export function SectionPage({ section, featured, rows }) {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050608] text-zinc-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.16),transparent_30%),radial-gradient(circle_at_top_right,rgba(255,255,255,0.06),transparent_25%),linear-gradient(180deg,rgba(6,7,11,0)_0%,rgba(6,7,11,0.8)_100%)]" />
+    <div className="relative min-h-screen overflow-hidden bg-[#111111] text-zinc-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,9,20,0.15),transparent_34%),linear-gradient(180deg,rgba(17,17,17,0)_0%,rgba(17,17,17,0.96)_100%)]" />
 
       <main className="relative z-10">
         <HeroSection items={heroItems} />
 
         <section className="page-container flex flex-col gap-8 pb-16">
-          <section className="scroll-mt-28 rounded-[1.75rem] border border-white/6 bg-white/3 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur-sm sm:p-6">
+          <section className="scroll-mt-28 rounded-sm border border-zinc-800 bg-[#181818] p-4 sm:p-6">
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-red-400">{config.title}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#e50914]">{config.title}</p>
                 <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">{config.title} Collection</h2>
               </div>
               <p className="max-w-xl text-sm text-zinc-400">{config.subtitle}</p>
@@ -245,15 +245,15 @@ export function SectionPage({ section, featured, rows }) {
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {metaChips.map((group) => (
-                <div key={group.id} className="rounded-2xl border border-white/6 bg-black/30 p-4">
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">{group.label}</h3>
+                <div key={group.id} className="rounded-sm border border-zinc-700 bg-[#202020] p-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-300">{group.label}</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {group.values.length > 0 ? (
                       group.values.map((value) => (
                         <Link
                           key={`${group.id}-${value}`}
                           href={`/search?q=${encodeURIComponent(value)}`}
-                          className="rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1.5 text-sm text-zinc-200 transition hover:border-red-500 hover:bg-red-500/10 hover:text-white"
+                          className="rounded-sm border border-zinc-600 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 transition hover:border-[#e50914] hover:text-white"
                         >
                           {value}
                         </Link>
@@ -269,11 +269,7 @@ export function SectionPage({ section, featured, rows }) {
 
           {displayRows.length > 0 ? (
             displayRows.map((row) => (
-              <section
-                key={row.id}
-                id={row.id}
-                className="scroll-mt-28 rounded-[1.75rem] border border-white/6 bg-white/3 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur-sm sm:p-6"
-              >
+              <section key={row.id} id={row.id} className="scroll-mt-28">
                 <ContentRow row={row} />
               </section>
             ))

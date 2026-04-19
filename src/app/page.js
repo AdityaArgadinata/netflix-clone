@@ -103,19 +103,15 @@ export default async function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050608] text-zinc-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.16),transparent_30%),radial-gradient(circle_at_top_right,rgba(255,255,255,0.06),transparent_25%),linear-gradient(180deg,rgba(6,7,11,0)_0%,rgba(6,7,11,0.8)_100%)]" />
+    <div className="relative min-h-screen overflow-hidden bg-[#111111] text-zinc-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,9,20,0.15),transparent_34%),linear-gradient(180deg,rgba(17,17,17,0)_0%,rgba(17,17,17,0.96)_100%)]" />
       <main className="relative z-10">
         <HeroSection items={featuredItems} />
 
-        <section className="page-container flex flex-col gap-8 pb-16">
+        <section className="page-container flex flex-col gap-9 pb-16">
           {displayRows.length > 0 ? (
             displayRows.map((row) => (
-              <section
-                key={row.id}
-                id={row.id}
-                className="scroll-mt-28 rounded-[1.75rem] border border-white/6 bg-white/3 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur-sm sm:p-6"
-              >
+              <section key={row.id} id={row.id} className="scroll-mt-28">
                 <ContentRow row={row} />
               </section>
             ))
@@ -125,29 +121,29 @@ export default async function Home() {
 
           <section
             id="browse-hub"
-            className="scroll-mt-28 rounded-[1.75rem] border border-white/6 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.38)] sm:p-6"
+            className="scroll-mt-28 rounded-sm border border-zinc-800 bg-[#181818] p-5 sm:p-6"
           >
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-red-400">Browse</p>
-                <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Explore the library like a streaming home</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#e50914]">Browse</p>
+                <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Explore by category</h2>
               </div>
               <p className="max-w-xl text-sm text-zinc-400">
-                Pick a genre, country, year, or network to jump into curated collections that feel like a streaming shelf.
+                Pick a genre, country, year, or network to jump into curated collections.
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {browseGroups.map((group) => (
-                <div key={group.id} className="rounded-2xl border border-white/6 bg-black/30 p-4">
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">{group.title}</h3>
+                <div key={group.id} className="rounded-sm border border-zinc-700 bg-[#202020] p-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-300">{group.title}</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {group.values.length > 0 ? (
                       group.values.slice(0, 8).map((value) => (
                         <Link
                           key={value}
                           href={`/search?q=${encodeURIComponent(value)}`}
-                          className="rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1.5 text-sm text-zinc-200 transition hover:border-red-500 hover:bg-red-500/10 hover:text-white"
+                          className="rounded-sm border border-zinc-600 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 transition hover:border-[#e50914] hover:text-white"
                         >
                           {value}
                         </Link>

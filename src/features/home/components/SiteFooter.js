@@ -34,12 +34,12 @@ const socialLinks = ["Instagram", "X", "Facebook", "YouTube"];
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/8 bg-[#050608] pb-10 pt-12 text-zinc-300">
+    <footer className="border-t border-zinc-800 bg-[#111111] pb-10 pt-12 text-zinc-300">
       <div className="page-container flex flex-col gap-10">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
           <div className="space-y-5">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-red-500">Flixaroo</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-[#e50914]">Flixaroo</p>
               <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">A streaming-style catalog built for discovery.</h2>
             </div>
             <p className="max-w-xl text-sm leading-7 text-zinc-400">
@@ -51,7 +51,7 @@ export function SiteFooter() {
                 <a
                   key={label}
                   href="#"
-                  className="rounded-full border border-zinc-700 bg-zinc-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300 transition hover:border-red-500 hover:text-white"
+                  className="rounded-sm border border-zinc-700 bg-zinc-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300 transition hover:border-zinc-500 hover:text-white"
                 >
                   {label}
                 </a>

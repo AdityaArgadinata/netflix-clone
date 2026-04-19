@@ -1,15 +1,16 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Manrope } from "next/font/google";
 import "./globals.css";
 import { HomeNavbar } from "@/features/home/components/HomeNavbar";
 import { SiteFooter } from "@/features/home/components/SiteFooter";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bodyFont = Manrope({
+  variable: "--font-body",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const displayFont = Bebas_Neue({
+  variable: "--font-display",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -77,9 +78,9 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0f]">
+      <body className="flex min-h-full flex-col bg-[#111111] text-zinc-100">
         <HomeNavbar />
         <div className="flex-1">{children}</div>
         <SiteFooter />

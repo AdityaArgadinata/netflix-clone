@@ -10,8 +10,9 @@ export function ContentRow({ row }) {
 
   function scrollByDirection(direction) {
     if (!railRef.current) return;
+    const amount = Math.max(360, Math.round(railRef.current.clientWidth * 0.8));
     railRef.current.scrollBy({
-      left: direction * 640,
+      left: direction * amount,
       behavior: "smooth",
     });
   }
@@ -32,18 +33,18 @@ export function ContentRow({ row }) {
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{row.title}</h2>
         <Link
-          className="text-sm text-zinc-400 transition hover:text-zinc-200"
+          className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400 transition hover:text-zinc-200"
           href={`/search?q=${encodeURIComponent(row.title)}`}
         >
-          View All
+          Explore All
         </Link>
       </div>
 
-      <div className="relative">
+      <div className="group/rail relative">
         <button
           type="button"
           onClick={() => scrollByDirection(-1)}
-          className="absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-zinc-700 bg-black/65 px-3 py-2 text-sm font-bold text-zinc-100 transition hover:border-zinc-300 hover:bg-black/85 lg:block"
+          className="absolute left-0 top-0 z-20 hidden h-full w-14 items-center justify-center bg-linear-to-r from-black/85 to-transparent text-3xl text-white/85 opacity-0 transition group-hover/rail:opacity-100 lg:flex"
           aria-label={`Scroll ${row.title} left`}
         >
           ‹
@@ -52,7 +53,7 @@ export function ContentRow({ row }) {
         <button
           type="button"
           onClick={() => scrollByDirection(1)}
-          className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-zinc-700 bg-black/65 px-3 py-2 text-sm font-bold text-zinc-100 transition hover:border-zinc-300 hover:bg-black/85 lg:block"
+          className="absolute right-0 top-0 z-20 hidden h-full w-14 items-center justify-center bg-linear-to-l from-black/85 to-transparent text-3xl text-white/85 opacity-0 transition group-hover/rail:opacity-100 lg:flex"
           aria-label={`Scroll ${row.title} right`}
         >
           ›
@@ -60,7 +61,7 @@ export function ContentRow({ row }) {
 
         <div
           ref={railRef}
-          className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {row.items.map((item) => {
             const CardComponent = isSeriesRow ? SeriesCard : PosterCard;

@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
+import { CommentsSection } from "@/features/comments/components/CommentsSection";
 
 export function EpisodeDetail({ series, episode }) {
   const router = useRouter();
   const [showPlayer, setShowPlayer] = useState(false);
+  const [failedStudioLogos, setFailedStudioLogos] = useState(new Set());
 
   if (!series || !episode) return null;
 
@@ -17,6 +19,9 @@ export function EpisodeDetail({ series, episode }) {
   const episodeLabel = `Season ${episode.seasonNumber} • Episode ${episode.episodeNumber}`;
   const roundedSeriesRating = Number.isFinite(Number(series.rating)) ? Math.round(Number(series.rating)) : "N/A";
   const studioPartners = Array.isArray(series.studioPartners) ? series.studioPartners : [];
+  const markStudioLogoFailed = (studioKey) => {
+    setFailedStudioLogos((prev) => new Set([...prev, studioKey]));
+  };
   const buildEpisodeHref = (item) =>
     `/movie/${series.id}-show/season/${item.seasonNumber}/episode/${item.episodeNumber}`;
   const displayCast = episode.cast && episode.cast.length > 0 ? episode.cast : series.cast;
@@ -179,20 +184,32 @@ export function EpisodeDetail({ series, episode }) {
             <div className="mt-8">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Studios & Networks</p>
               <div className="flex flex-wrap items-center gap-6">
-                {studioPartners.map((studio) => (
-                  <div
-                    key={`${studio.id}-${studio.name}`}
-                    className="relative h-11 w-32 rounded-md border border-zinc-700/60 bg-zinc-300/90 p-2"
-                  >
-                    <Image
-                      src={studio.logoUrl}
-                      alt={studio.name}
-                      fill
-                      className="object-contain p-2 brightness-0 contrast-125"
-                      sizes="112px"
-                    />
-                  </div>
-                ))}
+                {studioPartners.map((studio) => {
+                  const studioKey = `${studio.id}-${studio.name}`;
+                  const hasLogo = Boolean(studio.logoUrl) && !failedStudioLogos.has(studioKey);
+
+                  return (
+                    <div
+                      key={studioKey}
+                      className="relative flex h-14 w-40 items-center justify-center rounded-md border border-zinc-700/70 bg-linear-to-b from-zinc-800 to-zinc-900 px-3"
+                    >
+                      {hasLogo ? (
+                        <Image
+                          src={studio.logoUrl}
+                          alt={studio.name}
+                          fill
+                          onError={() => markStudioLogoFailed(studioKey)}
+                          className="object-contain p-2"
+                          sizes="160px"
+                        />
+                      ) : (
+                        <span className="line-clamp-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-zinc-200">
+                          {studio.name}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -371,6 +388,9 @@ export function EpisodeDetail({ series, episode }) {
             </div>
           </div>
         )}
+
+        {/* Comments Section */}
+        <CommentsSection movieId={`${series.id}-s${episode.seasonNumber}e${episode.episodeNumber}`} movieTitle={`${series.title} - Season ${episode.seasonNumber} Episode ${episode.episodeNumber}`} />
       </div>
     </div>
   );

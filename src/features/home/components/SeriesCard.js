@@ -9,8 +9,7 @@ export function SeriesCard({ item }) {
 
   return (
     <Link href={detailPath}>
-      <article className="group relative shrink-0 w-80 sm:w-96 rounded-lg overflow-hidden transition duration-300 hover:shadow-lg cursor-pointer min-h-52">
-        {/* Backdrop Banner */}
+      <article className="group relative min-h-52 w-80 shrink-0 cursor-pointer overflow-hidden rounded-md bg-zinc-900 transition duration-300 hover:z-10 hover:scale-[1.03] hover:shadow-[0_20px_42px_rgba(0,0,0,0.55)] sm:w-96">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={
@@ -24,15 +23,12 @@ export function SeriesCard({ item }) {
           }
         />
 
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-black/30" />
-        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/70" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/45 to-black/35" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/80" />
 
-        {/* Content Container */}
-        <div className="relative h-full flex flex-col justify-content p-3">
-          {/* Type Badge */}
-          <div className="flex items-center gap-1.5 mb-8">
-            <span className="inline-block rounded-md bg-red-600 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
+        <div className="relative flex h-full flex-col p-4">
+          <div className="mb-8 flex items-center gap-1.5">
+            <span className="inline-block rounded-sm bg-[#e50914] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
               TV Series
             </span>
             {item.label && (
@@ -42,8 +38,7 @@ export function SeriesCard({ item }) {
             )}
           </div>
 
-          {/* Logo or Title */}
-          <div className="min-h-8 mb-2 flex items-center">
+          <div className="mb-2 flex min-h-8 items-center">
             {item.logoUrl ? (
               <Image
                 src={item.logoUrl}
@@ -54,14 +49,13 @@ export function SeriesCard({ item }) {
                 priority={false}
               />
             ) : (
-              <h3 className="text-base font-bold leading-tight text-white line-clamp-2">
+              <h3 className="line-clamp-2 text-base font-bold leading-tight text-white">
                 {item.title}
               </h3>
             )}
           </div>
 
-          {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-1 text-[10px] sm:text-xs text-zinc-200 mb-1.5">
+          <div className="mb-1.5 flex flex-wrap items-center gap-1 text-[10px] text-zinc-200 sm:text-xs">
             <span className="font-bold text-yellow-300">★ {roundedRating}</span>
             {item.seasons && (
               <>
@@ -77,25 +71,14 @@ export function SeriesCard({ item }) {
             )}
           </div>
 
-          {/* Overview/Synopsis */}
-          <p className="text-[11px] leading-snug text-zinc-300 line-clamp-2 mb-2">
+          <p className="mb-2 line-clamp-2 text-[11px] leading-snug text-zinc-300">
             {item.overview}
           </p>
 
-          {/* Watch Now Button */}
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1 text-[11px] font-bold text-white transition hover:bg-red-500 active:bg-red-700 w-fit"
-            onClick={(e) => {
-              e.preventDefault();
-              if (item.trailerUrl) {
-                window.open(item.trailerUrl, "_blank");
-              }
-            }}
-          >
-            <span>▷</span>
-            <span>Watch</span>
-          </button>
+          <span className="mt-auto inline-flex w-fit items-center gap-1 rounded bg-white px-3 py-1 text-[11px] font-bold text-black">
+            <span>▶</span>
+            <span>Details</span>
+          </span>
         </div>
       </article>
     </Link>

@@ -108,8 +108,11 @@ export function SearchModal({ isOpen, onClose }) {
       />
 
       {/* Search Modal */}
-      <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 sm:pt-32">
-        <div className="w-full max-w-2xl">
+      <div
+        className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-20 sm:pt-32"
+        onClick={onClose}
+      >
+        <div className="w-full max-w-2xl" onClick={(event) => event.stopPropagation()}>
           {/* Search Input */}
           <form
             onSubmit={handleSearchSubmit}
@@ -139,11 +142,12 @@ export function SearchModal({ isOpen, onClose }) {
                   ✕
                 </button>
               )}
-              {!isLoading && !query && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500">
-                  🔍
-                </div>
-              )}
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-zinc-400">
+              <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">⌘K / Ctrl+K</span>
+              <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">Esc</span>
+              <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">Click outside</span>
             </div>
           </form>
 
