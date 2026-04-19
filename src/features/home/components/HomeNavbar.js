@@ -11,7 +11,7 @@ export function HomeNavbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(getSupabaseBrowserClient()));
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const router = useRouter();
 
@@ -20,8 +20,6 @@ export function HomeNavbar() {
     const supabase = getSupabaseBrowserClient();
 
     if (!supabase) {
-      setLoading(false);
-      setUser(null);
       return;
     }
     
