@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SignInForm } from "@/features/auth/components/SignInForm";
 
 export const metadata = {
@@ -15,7 +16,9 @@ export default function SignInPage() {
 
       <main className="relative z-10 page-container flex min-h-[calc(100vh-8rem)] items-center justify-center pb-14">
         <section className="w-full max-w-md rounded-sm border border-zinc-700/80 bg-black/70 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur-sm sm:p-8">
-          <SignInForm />
+          <Suspense fallback={<div className="text-sm text-zinc-400">Loading sign in...</div>}>
+            <SignInForm />
+          </Suspense>
         </section>
       </main>
     </div>
