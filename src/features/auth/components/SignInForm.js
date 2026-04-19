@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
 
   const [email, setEmail] = useState("");
@@ -16,6 +17,128 @@ export function SignInForm() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const missingConfig = !supabase;
+  const oauthCode = searchParams.get("code");
+  const oauthError = searchParams.get("error_description") || searchParams.get("error");
+
+  useEffect(() => {
+    if (!supabase) return;
+    if (typeof window === "undefined") return;
+    if (!window.location.hash?.includes("access_token=")) return;
+
+    let isMounted = true;
+
+    const hydrateSessionFromHash = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const hashError = hashParams.get("error_description") || hashParams.get("error");
+
+      if (hashError) {
+        if (isMounted) {
+          setErrorMessage(decodeURIComponent(hashError));
+        }
+        return;
+      }
+
+      if (!accessToken || !refreshToken) {
+        if (isMounted) {
+          setErrorMessage("OAuth callback is missing required tokens.");
+        }
+        return;
+      }
+
+      setIsGoogleLoading(true);
+      setErrorMessage("");
+
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      if (!isMounted) return;
+
+      if (error) {
+        setErrorMessage(error.message || "OAuth sign in failed.");
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
+      router.replace("/");
+      router.refresh();
+    };
+
+    hydrateSessionFromHash();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router, supabase]);
+
+  useEffect(() => {
+    if (!supabase || !oauthCode) return;
+
+    let isMounted = true;
+
+    const exchangeCode = async () => {
+      setIsGoogleLoading(true);
+      setErrorMessage("");
+
+      const { error } = await supabase.auth.exchangeCodeForSession(oauthCode);
+
+      if (!isMounted) return;
+
+      if (error) {
+        setErrorMessage(error.message || "OAuth sign in failed.");
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      router.replace("/");
+      router.refresh();
+    };
+
+    exchangeCode();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [oauthCode, router, supabase]);
+
+  useEffect(() => {
+    if (!oauthError) return;
+    setErrorMessage(decodeURIComponent(oauthError));
+  }, [oauthError]);
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    let isMounted = true;
+
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (isMounted && data?.session) {
+        router.push("/");
+        router.refresh();
+      }
+    };
+
+    checkSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.push("/");
+        router.refresh();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [router, supabase]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -57,7 +180,7 @@ export function SignInForm() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/sign-in`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",

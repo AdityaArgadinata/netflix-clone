@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function SignUpForm() {
+  const router = useRouter();
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
 
   const [fullName, setFullName] = useState("");
@@ -17,6 +19,36 @@ export function SignUpForm() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const missingConfig = !supabase;
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    let isMounted = true;
+
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (isMounted && data?.session) {
+        router.push("/");
+        router.refresh();
+      }
+    };
+
+    checkSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.push("/");
+        router.refresh();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [router, supabase]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -75,7 +107,7 @@ export function SignUpForm() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/sign-in`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
