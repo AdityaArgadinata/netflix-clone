@@ -3,11 +3,35 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 export function SearchResults({ query, results = [] }) {
   const router = useRouter();
   const [failedImages, setFailedImages] = useState(new Set());
+  const lastTrackedSearchRef = useRef("");
+
+  useEffect(() => {
+    const normalizedQuery = query.trim();
+    if (!normalizedQuery || typeof window === "undefined") return;
+
+    const resultsCount = results.length;
+    const trackingKey = `${normalizedQuery.toLowerCase()}::${resultsCount}`;
+    if (lastTrackedSearchRef.current === trackingKey) return;
+
+    const umami = window.umami;
+    if (!umami || typeof umami.track !== "function") return;
+
+    const compactQuery = normalizedQuery.replace(/\s+/g, " ").slice(0, 80);
+    const eventName = `search: ${compactQuery}`;
+
+    umami.track(eventName, {
+      query: normalizedQuery,
+      results_count: resultsCount,
+    });
+
+    lastTrackedSearchRef.current = trackingKey;
+  }, [query, results.length]);
 
   const handleImageError = (itemId) => {
     setFailedImages(prev => new Set([...prev, itemId]));
@@ -45,10 +69,13 @@ export function SearchResults({ query, results = [] }) {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {results.map((item) => {
                 const contentType = item.type === "tv" ? "show" : "movie";
-                const href = `/movie/${item.id}-${contentType}`;
+                const href = buildContentPath({ id: item.id, title: item.title, type: contentType });
 
                 return (
-                  <Link key={`${item.id}-${item.type}`} href={href}>
+                  <Link
+                    key={`${item.id}-${item.type}`}
+                    href={href}
+                  >
                     <article className="group space-y-3 cursor-pointer">
                       {/* Poster */}
                       <div className="relative aspect-2/3 overflow-hidden rounded-lg border border-zinc-700 bg-zinc-900 transition group-hover:border-zinc-500">

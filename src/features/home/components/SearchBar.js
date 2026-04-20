@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { searchContent, TOP_SEARCHES } from "@/features/home/api/searchContent";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 export function SearchBar() {
   const [query, setQuery] = useState("");
@@ -150,7 +151,7 @@ export function SearchBar() {
               <div className="max-h-80 overflow-y-auto">
                 {displayItems.map((item) => {
                   const contentType = item.type === "tv" ? "show" : "movie";
-                  const href = `/movie/${item.id}-${contentType}`;
+                  const href = buildContentPath({ id: item.id, title: item.title, type: contentType });
 
                   return (
                     <Link

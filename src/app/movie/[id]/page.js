@@ -1,5 +1,6 @@
 import { MovieDetail } from "@/features/home/components/MovieDetail";
 import { getMovieDetails } from "@/features/home/api/getMovieDetails";
+import { buildContentPath, parseContentParam } from "@/lib/routing/contentPath";
 
 function buildDescription(movie, isTV) {
   const year = movie.releaseDate ? String(movie.releaseDate).slice(0, 4) : null;
@@ -10,15 +11,23 @@ function buildDescription(movie, isTV) {
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const parts = id.split("-");
-  const movieId = parts[0];
-  const type = parts.slice(1).join("-");
-  const isTV = type === "show" || type === "tv";
+  const { movieId, isTV, isValidId } = parseContentParam(id);
+
+  if (!isValidId) {
+    return {
+      title: "Movie Details",
+      description: "Explore movie and TV detail pages with synopsis, cast, and episode information.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
 
   try {
-    const movie = await getMovieDetails(parseInt(movieId, 10), isTV);
+    const movie = await getMovieDetails(movieId, isTV);
     const year = movie.releaseDate ? String(movie.releaseDate).slice(0, 4) : "";
-    const canonical = `/movie/${movie.id}-${isTV ? "show" : "movie"}`;
+    const canonical = buildContentPath({ id: movie.id, title: movie.title, type: isTV ? "show" : "movie" });
     const title = `${movie.title}${year ? ` (${year})` : ""}`;
     const description = buildDescription(movie, isTV);
 
@@ -73,12 +82,12 @@ export async function generateMetadata({ params }) {
 
 export default async function MoviePage({ params }) {
   const { id } = await params;
-  // Format: "123-movie" or "456-show"
-  const parts = id.split("-");
-  const movieId = parts[0];
-  const type = parts.slice(1).join("-");
-  const isTV = type === "show" || type === "tv";
+  const { movieId, isTV, isValidId } = parseContentParam(id);
 
-  const movie = await getMovieDetails(parseInt(movieId), isTV);
+  if (!isValidId) {
+    throw new Error("Invalid content URL");
+  }
+
+  const movie = await getMovieDetails(movieId, isTV);
   return <MovieDetail movie={movie} />;
 }

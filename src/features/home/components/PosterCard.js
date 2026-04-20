@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 export function PosterCard({ item }) {
   const qualityBadge = item.contentType === "movie" ? "WEB-DL" : "TV";
   const type = item.contentType === "movie" ? "movie" : "show";
-  const detailPath = `/movie/${item.id}-${type}`;
+  const detailPath = buildContentPath({ id: item.id, title: item.title, type });
   const roundedRating = Number.isFinite(Number(item.rating)) ? Math.round(Number(item.rating)) : 7;
 
   return (

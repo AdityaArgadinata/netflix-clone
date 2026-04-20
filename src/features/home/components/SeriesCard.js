@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 export function SeriesCard({ item }) {
-  const detailPath = `/movie/${item.id}-show`;
+  const detailPath = buildContentPath({ id: item.id, title: item.title, type: "show" });
   const roundedRating = Number.isFinite(Number(item.rating)) ? Math.round(Number(item.rating)) : 8;
 
   return (

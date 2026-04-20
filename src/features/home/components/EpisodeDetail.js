@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
-import { CommentsSection } from "@/features/comments/components/CommentsSection";
+import { buildEpisodePath } from "@/lib/routing/contentPath";
 
 export function EpisodeDetail({ series, episode }) {
   const router = useRouter();
@@ -23,7 +23,12 @@ export function EpisodeDetail({ series, episode }) {
     setFailedStudioLogos((prev) => new Set([...prev, studioKey]));
   };
   const buildEpisodeHref = (item) =>
-    `/movie/${series.id}-show/season/${item.seasonNumber}/episode/${item.episodeNumber}`;
+    buildEpisodePath({
+      id: series.id,
+      title: series.title,
+      season: item.seasonNumber,
+      episode: item.episodeNumber,
+    });
   const displayCast = episode.cast && episode.cast.length > 0 ? episode.cast : series.cast;
 
   return (
@@ -98,14 +103,14 @@ export function EpisodeDetail({ series, episode }) {
 
           <div className="mb-6 flex flex-wrap gap-3">
             <button className="flex items-center gap-2 rounded bg-zinc-700 px-6 py-2 text-white transition hover:bg-zinc-600">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3.75h10.5a1.5 1.5 0 011.5 1.5v15l-6.75-3.75L5.25 20.25v-15a1.5 1.5 0 011.5-1.5z" />
               </svg>
               Watchlist
             </button>
             <button className="flex items-center gap-2 rounded bg-zinc-700 px-6 py-2 text-white transition hover:bg-zinc-600">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.172 16.172a4 4 0 015.656 0l2.828-2.828a6 6 0 00-8.488 0l2.828 2.828zm3.656-9.656a4 4 0 00-5.656 0L4.172 9.172a6 6 0 018.488 0L12.828 6.344zM9 11a1 1 0 11-2 0 1 1 0 012 0zm6-4a1 1 0 11-2 0 1 1 0 012 0z" />
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.9} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35z" />
               </svg>
               Favourite
             </button>
@@ -182,32 +187,31 @@ export function EpisodeDetail({ series, episode }) {
 
           {studioPartners.length > 0 && (
             <div className="mt-8">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Studios & Networks</p>
               <div className="flex flex-wrap items-center gap-6">
                 {studioPartners.map((studio) => {
                   const studioKey = `${studio.id}-${studio.name}`;
                   const hasLogo = Boolean(studio.logoUrl) && !failedStudioLogos.has(studioKey);
 
                   return (
-                    <div
-                      key={studioKey}
-                      className="relative flex h-14 w-40 items-center justify-center rounded-md border border-zinc-700/70 bg-linear-to-b from-zinc-800 to-zinc-900 px-3"
-                    >
-                      {hasLogo ? (
-                        <Image
-                          src={studio.logoUrl}
-                          alt={studio.name}
-                          fill
-                          onError={() => markStudioLogoFailed(studioKey)}
-                          className="object-contain p-2"
-                          sizes="160px"
-                        />
-                      ) : (
-                        <span className="line-clamp-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-zinc-200">
-                          {studio.name}
-                        </span>
-                      )}
-                    </div>
+                    hasLogo ? (
+                      <Image
+                        key={studioKey}
+                        src={studio.logoUrl}
+                        alt={studio.name}
+                        width={240}
+                        height={72}
+                        onError={() => markStudioLogoFailed(studioKey)}
+                        className="h-7 sm:h-9 w-auto max-w-25 sm:max-w-30 object-contain shrink-0 opacity-40 hover:opacity-70 transition-opacity grayscale invert"
+                        sizes="(max-width: 640px) 100px, 120px"
+                      />
+                    ) : (
+                      <span
+                        key={studioKey}
+                        className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300/80"
+                      >
+                        {studio.name}
+                      </span>
+                    )
                   );
                 })}
               </div>
@@ -389,8 +393,6 @@ export function EpisodeDetail({ series, episode }) {
           </div>
         )}
 
-        {/* Comments Section */}
-        <CommentsSection movieId={`${series.id}-s${episode.seasonNumber}e${episode.episodeNumber}`} movieTitle={`${series.title} - Season ${episode.seasonNumber} Episode ${episode.episodeNumber}`} />
       </div>
     </div>
   );

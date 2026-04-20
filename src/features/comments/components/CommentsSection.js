@@ -56,10 +56,13 @@ export function CommentsSection({ movieId, movieTitle }) {
           .eq("movie_id", movieId)
           .order("created_at", { ascending: false });
 
-        if (error && error.code !== "PGRST116") {
+        const hasMeaningfulError = Boolean(error) && Object.keys(error).length > 0 && error.code !== "PGRST116";
+
+        if (hasMeaningfulError) {
           console.error("Error fetching comments:", error);
-        } else if (data) {
-          setComments(data);
+          setComments([]);
+        } else {
+          setComments(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         console.error("Error:", err);

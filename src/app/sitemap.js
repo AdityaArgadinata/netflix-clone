@@ -1,4 +1,5 @@
 import { getHomepageData } from "@/features/home/api/getHomepageData";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://flixaroo.com").replace(
   /\/$/,
@@ -50,7 +51,11 @@ export default async function sitemap() {
       .filter((item) => item?.id)
       .map((item) => {
         const isTV = item.contentType === "tv_series";
-        const detailPath = `/movie/${item.id}-${isTV ? "show" : "movie"}`;
+        const detailPath = buildContentPath({
+          id: item.id,
+          title: item.title,
+          type: isTV ? "show" : "movie",
+        });
 
         return {
           url: buildAbsolute(detailPath),

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 export function HeroSection({ items = [] }) {
   const slides = useMemo(() => items.filter(Boolean), [items]);
@@ -22,7 +23,11 @@ export function HeroSection({ items = [] }) {
   const item = slides[activeIndex] ?? null;
   const roundedRating = Number.isFinite(Number(item?.rating)) ? Math.round(Number(item.rating)) : 8;
   const detailPath = item?.id
-    ? `/movie/${item.id}-${item.contentType === "tv_series" ? "show" : "movie"}`
+    ? buildContentPath({
+        id: item.id,
+        title: item.title,
+        type: item.contentType === "tv_series" ? "show" : "movie",
+      })
     : "/";
 
   if (!item) {

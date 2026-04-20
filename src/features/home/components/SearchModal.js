@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { searchContent, TOP_SEARCHES } from "@/features/home/api/searchContent";
+import { buildContentPath } from "@/lib/routing/contentPath";
 
 export function SearchModal({ isOpen, onClose }) {
   const router = useRouter();
@@ -65,8 +66,10 @@ export function SearchModal({ isOpen, onClose }) {
   }, [isOpen, onClose]);
 
   const navigateToSearch = (searchQuery) => {
-    if (searchQuery.trim()) {
-      const encodedQuery = encodeURIComponent(searchQuery.trim());
+    const normalizedQuery = searchQuery.trim();
+
+    if (normalizedQuery) {
+      const encodedQuery = encodeURIComponent(normalizedQuery);
       router.push(`/search?q=${encodedQuery}`);
       setQuery("");
       onClose();
@@ -126,8 +129,12 @@ export function SearchModal({ isOpen, onClose }) {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleInputKeyDown}
                 placeholder="Search movies, series..."
-                className="w-full rounded-lg border border-zinc-600 bg-zinc-900 px-5 py-3 pr-12 text-base text-white placeholder-zinc-500 transition focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/50"
+                className="w-full rounded-lg border border-zinc-600 bg-zinc-900 px-5 py-3 pr-40 text-base text-white placeholder-zinc-500 transition focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/50 sm:pr-44"
               />
+              <div className="pointer-events-none absolute right-12 top-1/2 hidden -translate-y-1/2 flex-wrap items-center gap-2 text-[10px] text-zinc-400 sm:flex sm:gap-3 sm:text-[11px]">
+                <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">⌘K / Ctrl+K</span>
+                <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">Esc</span>
+              </div>
               {isLoading && (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-red-600" />
@@ -142,12 +149,6 @@ export function SearchModal({ isOpen, onClose }) {
                   ✕
                 </button>
               )}
-            </div>
-
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-zinc-400">
-              <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">⌘K / Ctrl+K</span>
-              <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">Esc</span>
-              <span className="rounded border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-zinc-300">Click outside</span>
             </div>
           </form>
 
@@ -185,7 +186,7 @@ export function SearchModal({ isOpen, onClose }) {
                   <div className="max-h-80 overflow-y-auto">
                     {displayItems.map((item) => {
                       const contentType = item.type === "tv" ? "show" : "movie";
-                      const href = `/movie/${item.id}-${contentType}`;
+                      const href = buildContentPath({ id: item.id, title: item.title, type: contentType });
 
                       return (
                         <Link

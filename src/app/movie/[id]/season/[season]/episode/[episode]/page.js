@@ -1,5 +1,6 @@
 import { EpisodeDetail } from "@/features/home/components/EpisodeDetail";
 import { getEpisodeDetails } from "@/features/home/api/getEpisodeDetails";
+import { buildEpisodePath, parseContentParam } from "@/lib/routing/contentPath";
 
 function buildEpisodeDescription(series, episode) {
   const episodeName = episode.title || `Episode ${episode.episodeNumber}`;
@@ -9,12 +10,9 @@ function buildEpisodeDescription(series, episode) {
 
 export async function generateMetadata({ params }) {
   const { id, season, episode } = await params;
-  const parts = id.split("-");
-  const movieId = parts[0];
-  const type = parts.slice(1).join("-");
-  const isTV = type === "show" || type === "tv";
+  const { movieId, isTV, isValidId } = parseContentParam(id);
 
-  if (!isTV) {
+  if (!isValidId || !isTV) {
     return {
       title: "Episode Not Available",
       robots: {
@@ -25,11 +23,16 @@ export async function generateMetadata({ params }) {
   }
 
   try {
-    const payload = await getEpisodeDetails(parseInt(movieId, 10), parseInt(season, 10), parseInt(episode, 10));
+    const payload = await getEpisodeDetails(movieId, parseInt(season, 10), parseInt(episode, 10));
     const series = payload.series;
     const currentEpisode = payload.episode;
     const episodeName = currentEpisode.title || `Episode ${currentEpisode.episodeNumber}`;
-    const canonical = `/movie/${series.id}-show/season/${currentEpisode.seasonNumber}/episode/${currentEpisode.episodeNumber}`;
+    const canonical = buildEpisodePath({
+      id: series.id,
+      title: series.title,
+      season: currentEpisode.seasonNumber,
+      episode: currentEpisode.episodeNumber,
+    });
     const description = buildEpisodeDescription(series, currentEpisode);
 
     return {
@@ -81,17 +84,14 @@ export async function generateMetadata({ params }) {
 
 export default async function EpisodePage({ params }) {
   const { id, season, episode } = await params;
-  const parts = id.split("-");
-  const movieId = parts[0];
-  const type = parts.slice(1).join("-");
-  const isTV = type === "show" || type === "tv";
+  const { movieId, isTV, isValidId } = parseContentParam(id);
 
-  if (!isTV) {
+  if (!isValidId || !isTV) {
     throw new Error("Episode details are only available for TV series.");
   }
 
   const { series, episode: episodeDetails } = await getEpisodeDetails(
-    parseInt(movieId),
+    movieId,
     parseInt(season),
     parseInt(episode)
   );

@@ -1,4 +1,5 @@
 import { Bebas_Neue, Manrope } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { HomeNavbar } from "@/features/home/components/HomeNavbar";
 import { SiteFooter } from "@/features/home/components/SiteFooter";
@@ -20,6 +21,11 @@ const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "ht
 );
 
 const siteName = "Flixaroo";
+const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+const umamiScriptUrl = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || "https://cloud.umami.is/script.js";
+const umamiDomains = process.env.NEXT_PUBLIC_UMAMI_DOMAINS;
+const isUmamiEnabled = Boolean(umamiWebsiteId);
+
 const defaultDescription =
   "Watch trending movies, TV series, and episodes on Flixaroo with fast streaming links, detailed synopses, cast info, and curated genre collections.";
 const defaultKeywords = [
@@ -85,6 +91,14 @@ export default function RootLayout({ children }) {
         <div className="flex-1">{children}</div>
         <SiteFooter />
       </body>
+      {isUmamiEnabled && (
+        <Script
+          src={umamiScriptUrl}
+          strategy="afterInteractive"
+          data-website-id={umamiWebsiteId}
+          data-domains={umamiDomains || undefined}
+        />
+      )}
     </html>
   );
 }

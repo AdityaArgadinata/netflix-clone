@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Umami Analytics Setup
+
+Umami is integrated globally from the root layout and only runs when a website ID is configured.
+
+1. Add these values to `.env.local`:
+
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id
+NEXT_PUBLIC_UMAMI_SCRIPT_URL=https://cloud.umami.is/script.js
+NEXT_PUBLIC_UMAMI_DOMAINS=yourdomain.com
+
+2. Restart the dev server after updating environment variables.
+3. Open the site and verify pageviews are recorded in your Umami dashboard.
+
+Notes:
+- `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is required.
+- `NEXT_PUBLIC_UMAMI_SCRIPT_URL` is optional. Keep default for Umami Cloud, or change it for self-hosted Umami (for example, your own `/script.js` URL).
+- `NEXT_PUBLIC_UMAMI_DOMAINS` is optional and can be left empty if domain filtering is not needed.
