@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
 import { CommentsSection } from "@/features/comments/components/CommentsSection";
 import { buildEpisodePath } from "@/lib/routing/contentPath";
+import { MovieListActions } from "@/features/home/components/MovieListActions";
 
 export function MovieDetail({ movie }) {
-  const router = useRouter();
   const [showPlayer, setShowPlayer] = useState(false);
   const [failedStudioLogos, setFailedStudioLogos] = useState(new Set());
 
@@ -100,21 +99,7 @@ export function MovieDetail({ movie }) {
             <h1 className="text-4xl font-bold text-white mb-6 sm:text-5xl">{movie.title}</h1>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 mb-6">
-            <button className="px-6 py-2 bg-zinc-700 text-white rounded hover:bg-zinc-600 transition flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3.75h10.5a1.5 1.5 0 011.5 1.5v15l-6.75-3.75L5.25 20.25v-15a1.5 1.5 0 011.5-1.5z" />
-              </svg>
-              Watchlist
-            </button>
-            <button className="px-6 py-2 bg-zinc-700 text-white rounded hover:bg-zinc-600 transition flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.9} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35z" />
-              </svg>
-              Favourite
-            </button>
-          </div>
+          <MovieListActions content={movie} />
 
           {/* Meta Info - Single Horizontal Line */}
           <div className="flex flex-wrap items-center gap-2 mb-2 text-sm text-zinc-300 pb-4 border-b border-zinc-700">
