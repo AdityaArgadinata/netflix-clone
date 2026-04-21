@@ -3,46 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PosterCard } from "@/features/home/components/PosterCard";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { fetchUserMovieLists } from "@/lib/supabase/movieLists";
-
-const LIST_SECTIONS = [
-  {
-    key: "watchlist",
-    title: "Watchlist",
-    subtitle: "Continue the night with titles you already saved.",
-    accent: "from-[#e50914] to-red-900",
-  },
-  {
-    key: "favorite",
-    title: "Favourite",
-    subtitle: "Your personal set of must-watch titles.",
-    accent: "from-amber-500 to-orange-600",
-  },
-];
-
-function normalizeListItem(item) {
-  const contentType = item.movie_type === "tv_series" ? "show" : "movie";
-
-  return {
-    id: item.movie_id,
-    title: item.movie_title,
-    contentType,
-    posterUrl: item.poster_url,
-    backdropUrl: item.backdrop_url,
-    year: null,
-    overview: item.movie_title,
-  };
-}
 
 export function ProfilePageContent() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [listsLoading, setListsLoading] = useState(true);
-  const [movieLists, setMovieLists] = useState({ watchlist: [], favorite: [] });
-  const [listsError, setListsError] = useState("");
   const [editingEmail, setEditingEmail] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [displayName, setDisplayName] = useState("");
@@ -79,62 +45,6 @@ export function ProfilePageContent() {
 
     checkAuth();
   }, [router]);
-
-  useEffect(() => {
-    if (!user) {
-      setMovieLists({ watchlist: [], favorite: [] });
-      setListsError("");
-      setListsLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    const loadMovieLists = async () => {
-      setListsLoading(true);
-      setListsError("");
-
-      try {
-        const { data, error } = await fetchUserMovieLists(user.id);
-
-        if (!isMounted) return;
-
-        if (error) {
-          setListsError("Tabel movie_lists belum siap atau gagal dimuat.");
-          setMovieLists({ watchlist: [], favorite: [] });
-        } else {
-          const groupedLists = (data || []).reduce(
-            (accumulator, item) => {
-              const normalizedItem = normalizeListItem(item);
-              if (item.list_type === "favorite") {
-                accumulator.favorite.push(normalizedItem);
-              } else {
-                accumulator.watchlist.push(normalizedItem);
-              }
-              return accumulator;
-            },
-            { watchlist: [], favorite: [] }
-          );
-
-          setMovieLists(groupedLists);
-        }
-      } catch (error) {
-        if (!isMounted) return;
-        setListsError(error.message || "Gagal memuat daftar user.");
-        setMovieLists({ watchlist: [], favorite: [] });
-      } finally {
-        if (isMounted) {
-          setListsLoading(false);
-        }
-      }
-    };
-
-    loadMovieLists();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
 
   // Handle profile update
   const handleUpdateProfile = async () => {
@@ -212,8 +122,6 @@ export function ProfilePageContent() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
-  const totalSavedTitles = movieLists.watchlist.length + movieLists.favorite.length;
 
   return (
     <div className="min-h-screen bg-[#111111] pb-16 pt-24">
@@ -361,95 +269,6 @@ export function ProfilePageContent() {
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Library */}
-            <div className="overflow-hidden rounded-xl border border-zinc-700 bg-[#0f0f0f] shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
-              <div className="border-b border-zinc-800 bg-linear-to-r from-[#151515] via-[#121212] to-[#0f0f0f] px-6 py-6">
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#e50914]">
-                      My Library
-                    </p>
-                    <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-                      Saved titles
-                    </h2>
-                    <p className="mt-2 max-w-2xl text-sm text-zinc-400">
-                      A Netflix-style shelf for everything you’ve saved to watch later or marked as a favorite.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 rounded-full border border-zinc-700 bg-black/40 px-3 py-1.5 text-xs text-zinc-300">
-                    <span className="h-2 w-2 rounded-full bg-[#e50914]" />
-                    {totalSavedTitles} saved title{totalSavedTitles === 1 ? "" : "s"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-8 px-6 py-6">
-                {listsLoading ? (
-                  <div className="space-y-6">
-                    <div className="h-28 animate-pulse rounded-lg bg-zinc-900" />
-                    <div className="h-28 animate-pulse rounded-lg bg-zinc-900" />
-                  </div>
-                ) : movieLists.watchlist.length === 0 && movieLists.favorite.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-zinc-700 bg-black/20 p-8 text-center">
-                    <p className="text-lg font-semibold text-white">Your shelves are empty</p>
-                    <p className="mt-2 text-sm text-zinc-400">
-                      Open a movie or series detail page and save it to Watchlist or Favourite to see it here.
-                    </p>
-                    {listsError ? <p className="mt-3 text-xs text-zinc-500">{listsError}</p> : null}
-                  </div>
-                ) : (
-                  LIST_SECTIONS.map((section) => {
-                    const items = movieLists[section.key] || [];
-
-                    if (items.length === 0) {
-                      return (
-                        <section key={section.key} className="space-y-4 opacity-70">
-                          <div className="flex items-end justify-between gap-4">
-                            <div>
-                              <div className="flex items-center gap-3">
-                                <span className={`h-3 w-3 rounded-full bg-linear-to-r ${section.accent}`} />
-                                <h3 className="text-xl font-bold text-white">{section.title}</h3>
-                              </div>
-                              <p className="mt-1 text-sm text-zinc-400">{section.subtitle}</p>
-                            </div>
-                          </div>
-                          <div className="rounded-lg border border-dashed border-zinc-700 bg-black/20 p-6 text-sm text-zinc-500">
-                            No titles saved yet.
-                          </div>
-                        </section>
-                      );
-                    }
-
-                    return (
-                      <section key={section.key} className="space-y-4">
-                        <div className="flex items-end justify-between gap-4">
-                          <div>
-                              <div className="flex items-center gap-3">
-                                <span className={`h-3 w-3 rounded-full bg-linear-to-r ${section.accent}`} />
-                              <h3 className="text-xl font-bold text-white">{section.title}</h3>
-                            </div>
-                            <p className="mt-1 text-sm text-zinc-400">{section.subtitle}</p>
-                          </div>
-                          <span className="text-xs uppercase tracking-[0.3em] text-zinc-500">
-                            {items.length} item{items.length === 1 ? "" : "s"}
-                          </span>
-                        </div>
-
-                        <div className="flex gap-4 overflow-x-auto pb-2">
-                          {items.map((item) => (
-                            <div key={`${section.key}-${item.id}`} className="shrink-0">
-                              <PosterCard item={item} />
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    );
-                  })
-                )}
               </div>
             </div>
 

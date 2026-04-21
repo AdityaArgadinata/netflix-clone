@@ -6,7 +6,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
 import { buildEpisodePath } from "@/lib/routing/contentPath";
-import { MovieListActions } from "@/features/home/components/MovieListActions";
 
 export function EpisodeDetail({ series, episode }) {
   const router = useRouter();
@@ -102,7 +101,20 @@ export function EpisodeDetail({ series, episode }) {
             <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl">{series.title}</h2>
           )}
 
-          <MovieListActions content={series} />
+          <div className="mb-6 flex flex-wrap gap-3">
+            <button className="flex items-center gap-2 rounded bg-zinc-700 px-6 py-2 text-white transition hover:bg-zinc-600">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3.75h10.5a1.5 1.5 0 011.5 1.5v15l-6.75-3.75L5.25 20.25v-15a1.5 1.5 0 011.5-1.5z" />
+              </svg>
+              Watchlist
+            </button>
+            <button className="flex items-center gap-2 rounded bg-zinc-700 px-6 py-2 text-white transition hover:bg-zinc-600">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.9} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35z" />
+              </svg>
+              Favourite
+            </button>
+          </div>
 
           <div className="mb-2 flex flex-wrap items-center gap-2 border-b border-zinc-700 pb-4 text-sm text-zinc-300">
             <span className="font-semibold text-zinc-100">{year}</span>
