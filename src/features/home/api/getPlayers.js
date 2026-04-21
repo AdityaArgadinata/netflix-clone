@@ -15,34 +15,6 @@ export const getMoviePlayers = (id, startAt) => {
       fast: true,
       resumable: true,
     },
-    // Keep the other players here for later reuse if needed.
-    // {
-    //   title: "VidLink",
-    //   source: `https://vidlink.pro/movie/${id}?player=jw&primaryColor=006fee&secondaryColor=a2a2a2&iconColor=eefdec&autoplay=false&startAt=${startAt || ""}`,
-    //   recommended: true,
-    //   fast: true,
-    //   ads: true,
-    //   resumable: true,
-    // },
-    // {
-    //   title: "VidLink 2",
-    //   source: `https://vidlink.pro/movie/${id}?primaryColor=006fee&autoplay=false&startAt=${startAt}`,
-    //   recommended: true,
-    //   fast: true,
-    //   ads: true,
-    //   resumable: true,
-    // },
-    // {
-    //   title: "EmbedSU",
-    //   source: `https://embed.su/embed/movie/${id}`,
-    //   ads: true,
-    // },
-    // {
-    //   title: "SuperEmbed",
-    //   source: `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
-    //   fast: true,
-    //   ads: true,
-    // },
   ];
 };
 
@@ -65,33 +37,5 @@ export const getTvShowPlayers = (id, season, episode, startAt) => {
       fast: true,
       resumable: true,
     },
-    // Keep the other players here for later reuse if needed.
-    // {
-    //   title: "VidLink",
-    //   source: `https://vidlink.pro/tv/${id}/${season}/${episode}?player=jw&primaryColor=f5a524&secondaryColor=a2a2a2&iconColor=eefdec&autoplay=false&startAt=${startAt || ""}`,
-    //   recommended: true,
-    //   fast: true,
-    //   ads: true,
-    //   resumable: true,
-    // },
-    // {
-    //   title: "VidLink 2",
-    //   source: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=f5a524&autoplay=false&startAt=${startAt}`,
-    //   recommended: true,
-    //   fast: true,
-    //   ads: true,
-    //   resumable: true,
-    // },
-    // {
-    //   title: "<Embed>",
-    //   source: `https://embed.su/embed/tv/${id}/${season}/${episode}`,
-    //   ads: true,
-    // },
-    // {
-    //   title: "SuperEmbed",
-    //   source: `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${season}&e=${episode}`,
-    //   fast: true,
-    //   ads: true,
-    // },
   ];
 };

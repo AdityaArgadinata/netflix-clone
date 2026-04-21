@@ -1,19 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
+import { getMoviePlayers, getTvShowPlayers } from "@/features/home/api/getPlayers";
 
 export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, onClose }) {
-  // Dynamically import players based on type
-  const players = useMemo(() => {
-    if (isTV) {
-      const getTvShowPlayers = require("@/features/home/api/getPlayers").getTvShowPlayers;
-      return getTvShowPlayers(movieId, season, episode);
-    } else {
-      const getMoviePlayers = require("@/features/home/api/getPlayers").getMoviePlayers;
-      return getMoviePlayers(movieId);
-    }
-  }, [movieId, isTV, season, episode]);
-  const currentPlayer = players[0];
+  const currentPlayer = isTV ? getTvShowPlayers(movieId, season, episode)[0] : getMoviePlayers(movieId)[0];
 
   // Prevent popup windows and external navigation
   useEffect(() => {
@@ -64,7 +55,6 @@ export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, on
         </div>
       </div>
 
-      {/* Player selection is intentionally fixed to VidKing for now. */}
     </div>
   );
 }
