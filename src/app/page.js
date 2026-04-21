@@ -5,6 +5,9 @@ import { EmptyState } from "@/features/home/components/EmptyState";
 import { getHomepageData } from "@/features/home/api/getHomepageData";
 
 const unique = (values) => [...new Set(values.filter(Boolean))];
+const siteName = "Flixaroo";
+const siteImage = "/flixaroo.jpg";
+const pageTitle = "Watch Movies and TV Series Online";
 
 export async function generateMetadata() {
   const { featured, rows } = await getHomepageData();
@@ -23,8 +26,9 @@ export async function generateMetadata() {
   const description = `Stream ${featureName} and explore updated collections of movies, TV series, episodes, genres, and top-rated titles in one catalog.`;
 
   return {
-    title: "Watch Movies and TV Series Online",
+    title: pageTitle,
     description,
+    applicationName: siteName,
     keywords: unique([
       "flixaroo",
       "flixaroo.com",
@@ -40,16 +44,41 @@ export async function generateMetadata() {
     alternates: {
       canonical: "/",
     },
+    authors: [{ name: siteName }],
+    creator: siteName,
+    publisher: siteName,
+    category: "entertainment",
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-video-preview": -1,
+        "max-snippet": -1,
+      },
+    },
     openGraph: {
-      title: "Watch Movies and TV Series Online",
+      title: pageTitle,
       description,
       url: "/",
       type: "website",
+      siteName,
+      images: [
+        {
+          url: siteImage,
+          width: 1200,
+          height: 630,
+          alt: siteName,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Watch Movies and TV Series Online",
+      title: pageTitle,
       description,
+      images: [siteImage],
     },
   };
 }
