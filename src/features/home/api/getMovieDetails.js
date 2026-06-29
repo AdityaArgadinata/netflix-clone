@@ -21,6 +21,21 @@ function mapStudioPartners(data, isTV = false) {
     .slice(0, 10);
 }
 
+function mapEpisode(episode) {
+  return {
+    id: episode.id,
+    episodeNumber: episode.episode_number,
+    seasonNumber: episode.season_number,
+    title: episode.name,
+    overview: episode.overview,
+    stillPath: episode.still_path,
+    stillUrl: buildImageUrl(episode.still_path, "w500"),
+    airDate: episode.air_date,
+    rating: episode.vote_average,
+    runtime: episode.runtime,
+  };
+}
+
 export async function getMovieDetails(movieId, isTV = false) {
   const endpoint = isTV ? `/tv/${movieId}` : `/movie/${movieId}`;
   
@@ -42,27 +57,45 @@ export async function getMovieDetails(movieId, isTV = false) {
     }
     
     let episodes = [];
-    // Fetch episodes for TV series
-    if (isTV && data.seasons?.length > 0) {
-      try {
-        const seasonData = await fetchTMDB(`/tv/${movieId}/season/1`, {
-          revalidate: 3600,
-          cacheTtlMs: 3600 * 1000,
-        });
-        episodes = seasonData.episodes?.map(ep => ({
-          id: ep.id,
-          episodeNumber: ep.episode_number,
-          seasonNumber: ep.season_number,
-          title: ep.name,
-          overview: ep.overview,
-          stillPath: ep.still_path,
-          stillUrl: buildImageUrl(ep.still_path, "w500"),
-          airDate: ep.air_date,
-          rating: ep.vote_average,
-        })) || [];
-      } catch (err) {
-        console.error(`Failed to fetch episodes for ${movieId}:`, err);
-      }
+    let episodesBySeason = {};
+    const seasonSummaries = isTV && Array.isArray(data.seasons)
+      ? data.seasons
+          .filter((season) => season.season_number > 0 && season.episode_count > 0)
+          .map((season) => ({
+            id: season.id,
+            name: season.name,
+            seasonNumber: season.season_number,
+            episodeCount: season.episode_count,
+            airDate: season.air_date,
+          }))
+      : [];
+
+    if (seasonSummaries.length > 0) {
+      const seasonResults = await Promise.allSettled(
+        seasonSummaries.map((season) =>
+          fetchTMDB(`/tv/${movieId}/season/${season.seasonNumber}`, {
+            revalidate: 3600,
+            cacheTtlMs: 3600 * 1000,
+          })
+        )
+      );
+
+      episodesBySeason = seasonResults.reduce((acc, result, index) => {
+        const seasonNumber = seasonSummaries[index].seasonNumber;
+
+        if (result.status !== "fulfilled") {
+          console.error(`Failed to fetch season ${seasonNumber} for ${movieId}:`, result.reason);
+          acc[seasonNumber] = [];
+          return acc;
+        }
+
+        acc[seasonNumber] = Array.isArray(result.value.episodes)
+          ? result.value.episodes.map(mapEpisode)
+          : [];
+        return acc;
+      }, {});
+
+      episodes = episodesBySeason[seasonSummaries[0].seasonNumber] || [];
     }
     
     return {
@@ -87,6 +120,7 @@ export async function getMovieDetails(movieId, isTV = false) {
       networks: Array.isArray(data.networks) 
         ? data.networks.map(n => n.name) 
         : [],
+      seasonSummaries,
       studioPartners: mapStudioPartners(data, isTV),
       creators: Array.isArray(data.created_by)
         ? data.created_by.map(c => c.name)
@@ -100,6 +134,7 @@ export async function getMovieDetails(movieId, isTV = false) {
         profilePath: member.profile_path,
       })) || [],
       episodes,
+      episodesBySeason,
     };
   } catch (error) {
     console.error(`Failed to fetch details for ${movieId}:`, error);

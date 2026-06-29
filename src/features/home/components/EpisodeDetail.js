@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
+import { EpisodeGrid } from "@/features/home/components/EpisodeGrid";
 import { buildEpisodePath } from "@/lib/routing/contentPath";
 
 export function EpisodeDetail({ series, episode }) {
@@ -19,6 +19,9 @@ export function EpisodeDetail({ series, episode }) {
   const episodeLabel = `Season ${episode.seasonNumber} • Episode ${episode.episodeNumber}`;
   const roundedSeriesRating = Number.isFinite(Number(series.rating)) ? Math.round(Number(series.rating)) : "N/A";
   const studioPartners = Array.isArray(series.studioPartners) ? series.studioPartners : [];
+  const seasonSummaries = Array.isArray(series.seasonSummaries) ? series.seasonSummaries : [];
+  const episodesBySeason = series.episodesBySeason || {};
+  const currentSeasonEpisodes = episodesBySeason[episode.seasonNumber] || series.episodes || [];
   const markStudioLogoFailed = (studioKey) => {
     setFailedStudioLogos((prev) => new Set([...prev, studioKey]));
   };
@@ -29,6 +32,15 @@ export function EpisodeDetail({ series, episode }) {
       season: item.seasonNumber,
       episode: item.episodeNumber,
     });
+  const handleSeasonChange = (event) => {
+    const nextSeason = Number(event.target.value);
+    const nextEpisodes = episodesBySeason[nextSeason] || [];
+    const nextEpisode = nextEpisodes[0];
+
+    if (nextEpisode) {
+      router.push(buildEpisodeHref(nextEpisode));
+    }
+  };
   const displayCast = episode.cast && episode.cast.length > 0 ? episode.cast : series.cast;
 
   return (
@@ -219,57 +231,33 @@ export function EpisodeDetail({ series, episode }) {
           )}
         </div>
 
-        {series.episodes && series.episodes.length > 0 && (
+        {seasonSummaries.length > 0 && (
           <div className="mb-16 border-t border-zinc-800 pt-12">
-            <h3 className="mb-6 text-2xl font-bold text-white">Episodes (Season 1)</h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {series.episodes.map((item) => {
-                const isCurrentEpisode =
-                  item.seasonNumber === episode.seasonNumber && item.episodeNumber === episode.episodeNumber;
-
-                return (
-                  <Link
-                    key={item.id}
-                    href={buildEpisodeHref(item)}
-                    className={`group block overflow-hidden rounded-lg bg-zinc-900 transition duration-200 hover:shadow-lg ${
-                      isCurrentEpisode ? "ring-2 ring-red-500" : ""
-                    }`}
-                  >
-                    <div className="relative aspect-video overflow-hidden bg-zinc-800">
-                      {item.stillUrl ? (
-                        <Image
-                          src={item.stillUrl}
-                          alt={`Episode ${item.episodeNumber}`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 30vw"
-                          className="object-cover transition duration-200 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-700 to-zinc-900">
-                          <svg className="h-12 w-12 text-zinc-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                            <path d="M14 10a1 1 0 11-2 0 1 1 0 012 0z" opacity="0.5" />
-                          </svg>
-                        </div>
-                      )}
-                      <div className="absolute bottom-2 right-2 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-white">
-                        Ep {item.episodeNumber}
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="mb-2 line-clamp-2 text-sm font-bold text-white">{item.title}</h4>
-                      <p className="line-clamp-3 text-xs text-zinc-400">{item.overview || "No synopsis available."}</p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-zinc-500">{item.airDate || "TBA"}</span>
-                        {Number.isFinite(Number(item.rating)) && (
-                          <span className="text-xs text-yellow-300">★ {Math.round(Number(item.rating))}</span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-2xl font-bold text-white">Episodes</h3>
+              <label className="flex items-center gap-3 text-sm text-zinc-300">
+                <span>Season</span>
+                <select
+                  value={episode.seasonNumber}
+                  onChange={handleSeasonChange}
+                  className="h-10 rounded border border-zinc-700 bg-zinc-900 px-3 text-sm font-semibold text-white outline-none transition hover:border-zinc-500 focus:border-red-500"
+                >
+                  {seasonSummaries.map((season) => (
+                    <option key={season.id} value={season.seasonNumber}>
+                      {season.name || `Season ${season.seasonNumber}`} ({season.episodeCount})
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
+
+            {currentSeasonEpisodes.length > 0 ? (
+              <EpisodeGrid episodes={currentSeasonEpisodes} buildEpisodeHref={buildEpisodeHref} currentEpisode={episode} />
+            ) : (
+              <p className="rounded border border-zinc-800 bg-zinc-900/60 px-4 py-5 text-sm text-zinc-400">
+                Episodes for this season are not available yet.
+              </p>
+            )}
           </div>
         )}
 

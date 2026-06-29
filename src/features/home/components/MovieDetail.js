@@ -1,16 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { VideoPlayer } from "@/features/home/components/VideoPlayer";
+import { EpisodeGrid } from "@/features/home/components/EpisodeGrid";
 import { CommentsSection } from "@/features/comments/components/CommentsSection";
 import { buildEpisodePath } from "@/lib/routing/contentPath";
 
 export function MovieDetail({ movie }) {
   const router = useRouter();
+  const defaultSeason = movie?.seasonSummaries?.[0]?.seasonNumber || 1;
   const [showPlayer, setShowPlayer] = useState(false);
+  const [seasonSelection, setSeasonSelection] = useState({
+    movieId: movie?.id,
+    season: defaultSeason,
+  });
   const [failedStudioLogos, setFailedStudioLogos] = useState(new Set());
 
   if (!movie) return null;
@@ -19,6 +24,11 @@ export function MovieDetail({ movie }) {
   const isTVSeries = movie.contentType === "tv_series";
   const roundedMovieRating = Number.isFinite(Number(movie.rating)) ? Math.round(Number(movie.rating)) : "N/A";
   const studioPartners = Array.isArray(movie.studioPartners) ? movie.studioPartners : [];
+  const seasonSummaries = Array.isArray(movie.seasonSummaries) ? movie.seasonSummaries : [];
+  const episodesBySeason = movie.episodesBySeason || {};
+  const selectedSeason = seasonSelection.movieId === movie.id ? seasonSelection.season : defaultSeason;
+  const selectedSeasonEpisodes = episodesBySeason[selectedSeason] || movie.episodes || [];
+  const selectedEpisodeNumber = selectedSeasonEpisodes[0]?.episodeNumber || 1;
   const markStudioLogoFailed = (studioKey) => {
     setFailedStudioLogos((prev) => new Set([...prev, studioKey]));
   };
@@ -36,8 +46,8 @@ export function MovieDetail({ movie }) {
         <VideoPlayer 
           movieId={movie.id}
           isTV={movie.seasons ? true : false}
-          season={1}
-          episode={1}
+          season={selectedSeason}
+          episode={selectedEpisodeNumber}
           onClose={() => setShowPlayer(false)}
         />
       )}
@@ -218,52 +228,38 @@ export function MovieDetail({ movie }) {
         </div>
 
         {/* Episodes for TV Series - Before Cast */}
-        {isTVSeries && movie.episodes && movie.episodes.length > 0 && (
+        {isTVSeries && seasonSummaries.length > 0 && (
           <div className="mb-16 border-t border-zinc-800 pt-12">
-            <h2 className="text-2xl font-bold text-white mb-6">Episodes (Season 1)</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {movie.episodes.map((episode) => (
-                <Link
-                  key={episode.id}
-                  href={buildEpisodeHref(episode)}
-                  className="group block cursor-pointer overflow-hidden rounded-lg bg-zinc-900 transition duration-200 hover:shadow-lg"
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-2xl font-bold text-white">Episodes</h2>
+              <label className="flex items-center gap-3 text-sm text-zinc-300">
+                <span>Season</span>
+                <select
+                  value={selectedSeason}
+                  onChange={(event) =>
+                    setSeasonSelection({
+                      movieId: movie.id,
+                      season: Number(event.target.value),
+                    })
+                  }
+                  className="h-10 rounded border border-zinc-700 bg-zinc-900 px-3 text-sm font-semibold text-white outline-none transition hover:border-zinc-500 focus:border-red-500"
                 >
-                  <div className="relative aspect-video overflow-hidden bg-zinc-800">
-                    {episode.stillUrl ? (
-                      <Image
-                        src={episode.stillUrl}
-                        alt={`Episode ${episode.episodeNumber}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 30vw"
-                        className="object-cover group-hover:scale-105 transition duration-200"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-linear-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
-                        <svg className="w-12 h-12 text-zinc-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                          <path d="M14 10a1 1 0 11-2 0 1 1 0 012 0z" opacity="0.5" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs font-semibold text-white">
-                      Ep {episode.episodeNumber}
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-sm text-white mb-2 line-clamp-2">
-                      {episode.title}
-                    </h3>
-                    <p className="text-xs text-zinc-400 line-clamp-3">{episode.overview || "No synopsis available."}</p>
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-xs text-zinc-500">{episode.airDate || "TBA"}</span>
-                      {Number.isFinite(Number(episode.rating)) && (
-                        <span className="text-xs text-yellow-300">★ {Math.round(Number(episode.rating))}</span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                  {seasonSummaries.map((season) => (
+                    <option key={season.id} value={season.seasonNumber}>
+                      {season.name || `Season ${season.seasonNumber}`} ({season.episodeCount})
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
+
+            {selectedSeasonEpisodes.length > 0 ? (
+              <EpisodeGrid episodes={selectedSeasonEpisodes} buildEpisodeHref={buildEpisodeHref} />
+            ) : (
+              <p className="rounded border border-zinc-800 bg-zinc-900/60 px-4 py-5 text-sm text-zinc-400">
+                Episodes for this season are not available yet.
+              </p>
+            )}
           </div>
         )}
 
@@ -412,16 +408,6 @@ export function MovieDetail({ movie }) {
         <CommentsSection movieId={movie.id} movieTitle={movie.title} />
       </div>
 
-      {/* Video Player Modal */}
-      {showPlayer && (
-        <VideoPlayer 
-          movieId={movie.id}
-          isTV={movie.seasons ? true : false}
-          season={1}
-          episode={1}
-          onClose={() => setShowPlayer(false)}
-        />
-      )}
     </div>
   );
 }

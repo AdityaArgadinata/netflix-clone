@@ -4,6 +4,24 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+function isMissingCommentsTable(error) {
+  if (!error) return false;
+
+  const message = `${error.message || ""} ${error.details || ""}`.toLowerCase();
+  return error.code === "42P01" || error.code === "PGRST205" || message.includes("movie_comments");
+}
+
+function logCommentsWarning(context, error) {
+  if (process.env.NODE_ENV !== "development") return;
+
+  console.warn(context, {
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+  });
+}
+
 export function CommentsSection({ movieId, movieTitle }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -30,7 +48,8 @@ export function CommentsSection({ movieId, movieTitle }) {
         setUser(session?.user ?? null);
         setLoading(false);
       } catch (err) {
-        console.error("Error checking auth:", err);
+        logCommentsWarning("Comments auth check failed:", err);
+        setUser(null);
         setLoading(false);
       }
     };
@@ -56,16 +75,15 @@ export function CommentsSection({ movieId, movieTitle }) {
           .eq("movie_id", movieId)
           .order("created_at", { ascending: false });
 
-        const hasMeaningfulError = Boolean(error) && Object.keys(error).length > 0 && error.code !== "PGRST116";
-
-        if (hasMeaningfulError) {
-          console.error("Error fetching comments:", error);
+        if (error) {
+          logCommentsWarning("Comments fetch skipped:", error);
           setComments([]);
         } else {
           setComments(Array.isArray(data) ? data : []);
         }
       } catch (err) {
-        console.error("Error:", err);
+        logCommentsWarning("Comments fetch failed:", err);
+        setComments([]);
       }
     };
 
@@ -109,8 +127,8 @@ export function CommentsSection({ movieId, movieTitle }) {
       ]);
 
       if (insertError) {
-        // If table doesn't exist, add to local state only
-        if (insertError.code === "PGRST116") {
+        // If comments are not configured yet, keep the comment visible locally for this session.
+        if (isMissingCommentsTable(insertError)) {
           const newComment = {
             id: Math.random().toString(36),
             user_id: user.id,
@@ -126,6 +144,7 @@ export function CommentsSection({ movieId, movieTitle }) {
           setRating(5);
           setError("");
         } else {
+          logCommentsWarning("Comment submit failed:", insertError);
           setError("Failed to submit comment. Please try again.");
         }
       } else {
@@ -143,7 +162,7 @@ export function CommentsSection({ movieId, movieTitle }) {
         setRating(5);
       }
     } catch (err) {
-      console.error("Error submitting comment:", err);
+      logCommentsWarning("Comment submit failed:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setSubmitting(false);
