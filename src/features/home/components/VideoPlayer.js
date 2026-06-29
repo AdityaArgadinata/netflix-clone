@@ -50,7 +50,7 @@ export function VideoPlayer({ movieId, isTV = false, season = 1, episode = 1, on
             className="w-full h-full rounded-lg"
             title="Video Player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-fullscreen"
+            referrerPolicy="origin"
           />
         </div>
       </div>
